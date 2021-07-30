@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-sqliteadapter-dev-93412-authRole",
+      "UnauthRoleArn": "arn:aws:iam::325800432239:role/amplify-sqliteadapter-dev-93412-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::325800432239:role/amplify-sqliteadapter-dev-93412-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-sqliteadapter-dev-93412-deployment",
+      "UnauthRoleName": "amplify-sqliteadapter-dev-93412-unauthRole",
+      "StackName": "amplify-sqliteadapter-dev-93412",
+      "StackId": "arn:aws:cloudformation:us-east-2:325800432239:stack/amplify-sqliteadapter-dev-93412/aa419ed0-f071-11eb-876b-0296bead1dd6",
+      "AmplifyAppId": "d30ivcmrbri33x"
+    },
+    "categories": {
+      "auth": {
+        "sqliteadapterce86ecf5": {}
+      }
+    }
+  }
+}

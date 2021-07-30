@@ -1,0 +1,81 @@
+# TODO:
+# explicit group fields
+# nullable/non-nullable lists
+
+type Post
+  @model
+  @auth(rules: [{allow: owner}, {allow: public, operations: [read]}]) {
+  id: ID!
+  title: String!
+  views: Int
+  metadata: AWSJSON
+  draft: Boolean
+  rating: Float
+  editors: [PostEditor] @connection(keyName: "byPost", fields: ["id"])
+  comments: [Comment] @connection(keyName: "byPost", fields: ["id"])
+}
+
+type Comment
+  @model
+  @key(name: "byPost", fields: ["postID", "content"])
+  @auth(rules: [{allow: owner}, {allow: public, operations: [read]}]) {
+  id: ID!
+  postID: ID!
+  post: Post @connection(fields: ["postID"])
+  content: String!
+  owner: String # explicit owner field
+}
+
+type User
+  @model
+  @auth(
+    rules: [
+      {allow: owner}
+      {allow: groups, groups: ["admin"]}
+      {allow: public, operations: [read]}
+    ]
+  ) {
+  id: ID!
+  username: String!
+  profileID: ID!
+  profile: Profile @connection(fields: ["profileID"])
+  posts: [PostEditor] @connection(keyName: "byEditor", fields: ["id"])
+}
+
+type Avatar {
+  url: String
+  label: String
+}
+
+type Profile
+  @model
+  @auth(
+    rules: [
+      {allow: owner, ownerField: "username"} # testing custom ownerField
+      {allow: groups, groups: ["admin"]}
+      {allow: public, operations: [read]}
+    ]
+  ) {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  avatar: Avatar
+}
+
+type PostEditor
+  @model
+  @key(name: "byPost", fields: ["postID", "editorID"])
+  @key(name: "byEditor", fields: ["editorID", "postID"])
+  @auth(
+    rules: [
+      {allow: owner}
+      {allow: groups, groups: ["admin"]}
+      {allow: public, operations: [read]}
+    ]
+  ) {
+  id: ID!
+  postID: ID!
+  editorID: ID!
+  post: Post! @connection(fields: ["postID"])
+  editor: User! @connection(fields: ["editorID"])
+}
