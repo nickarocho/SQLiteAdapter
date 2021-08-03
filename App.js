@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Amplify, {DataStore, AuthModeStrategyType} from 'aws-amplify';
+import Amplify from 'aws-amplify';
 import awsconfig from './src/aws-exports.js';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 

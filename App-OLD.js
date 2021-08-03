@@ -44,7 +44,6 @@ Log-in
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // padding: 10,
   },
   input: {
     height: 30,
@@ -76,13 +75,7 @@ const DATA = [
   },
 ];
 
-const POSTS = [];
-
 function PostsList(posts) {
-  // console.log({posts});
-  // posts.forEach(post => {
-  //   alert(post.title);
-  // });
   return (
     <FlatList
       data={posts}

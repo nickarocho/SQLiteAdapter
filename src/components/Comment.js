@@ -20,28 +20,14 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
     setIsEditing(previousState => !previousState);
   };
 
-  const handleCancel = () => {
-    toggleEdit();
-  };
-
-  const handleCommentSubmit = () => {
-    // TODO: write create comment functionality
-    console.log('submit comment!');
-  };
-
   const handleUpdateComment = async () => {
     try {
       const original = await DataStore.query(Comment, comment.id);
-      console.log({original});
       await DataStore.save(
         Comment.copyOf(original, updated => {
           updated.content = editComment;
         }),
       ).then(updated => {
-        console.log({updated});
-        // setEditComment({
-        //   ...updated,
-        // });
         toggleEdit();
       });
     } catch (err) {

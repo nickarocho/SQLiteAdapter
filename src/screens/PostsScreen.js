@@ -9,15 +9,8 @@ import {
 } from 'react-native';
 import PostComponent from '../components/Post';
 
-import Amplify, {DataStore, AuthModeStrategyType} from 'aws-amplify';
-import awsconfig from '../../src/aws-exports';
+import {DataStore} from 'aws-amplify';
 import {Post, Comment} from '../models';
-
-Amplify.configure(awsconfig);
-
-DataStore.configure({
-  authModeStrategyType: AuthModeStrategyType.MULTI_AUTH,
-});
 
 const PostsScreen = ({navigation}) => {
   const [posts, updatePosts] = useState([
@@ -218,7 +211,6 @@ const PostsScreen = ({navigation}) => {
           const comments = (await DataStore.query(Comment)).filter(
             c => c.post.id === id,
           );
-          console.log({comments});
           return {...post, comments};
         }),
       ).then(syncedPosts => {

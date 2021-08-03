@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -34,8 +34,6 @@ const ViewPostScreen = ({navigation}) => {
           {
             text: 'Save',
             onPress: () => {
-              // TODO: save the post via DS
-              console.log('Saving post');
               handleUpdatePost(editedPost.id);
               setIsEditing(previousState => !previousState);
             },
@@ -45,7 +43,6 @@ const ViewPostScreen = ({navigation}) => {
             text: 'Cancel',
             onPress: () => {
               setIsEditing(previousState => !previousState);
-              console.log('Cancel Pressed');
               setEditedPost({
                 ...post,
               });
@@ -94,21 +91,18 @@ const ViewPostScreen = ({navigation}) => {
 
   async function handleSubmitComment() {
     try {
-      // just clears the form
-      const thisComment = await DataStore.save(
+      await DataStore.save(
         new Comment({
           content: newComment,
           postID: post.id,
         }),
       );
-      console.log({thisComment});
     } catch (err) {
       console.error('something went wrong with handleSubmitComment:', err);
     }
   }
 
-  const fetchComments = async () => {
-    console.log('fetching comments');
+  const fetchComments = useCallback(async () => {
     try {
       const allComments = (await DataStore.query(Comment)).filter(
         c => c.post.id === post.id,
@@ -118,7 +112,7 @@ const ViewPostScreen = ({navigation}) => {
     } catch (err) {
       console.error('something went wrong with fetchComments:', err);
     }
-  };
+  }, [post]);
 
   useEffect(() => {
     fetchComments();
@@ -134,7 +128,7 @@ const ViewPostScreen = ({navigation}) => {
     return () => {
       commentSubscription.unsubscribe();
     };
-  }, []);
+  }, [fetchComments]);
 
   return (
     <ScrollView style={styles.container}>
