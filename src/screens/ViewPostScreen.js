@@ -6,15 +6,28 @@ import {
   SafeAreaView,
   FlatList,
   TextInput,
+  Pressable,
 } from 'react-native';
+import Comment from '../components/Comment';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ViewPostScreen = ({navigation}) => {
   const {post} = navigation.state.params;
   const [newComment, setNewComment] = useState('');
 
+  const [isEditing, setIsEditing] = useState(false);
+  const toggleEdit = () => {
+    setIsEditing(previousState => !previousState);
+  };
+
   const handleCommentSubmit = () => {
     // TODO: write create comment functionality
     console.log('submit comment!');
+  };
+
+  const handleUpdateComment = () => {
+    // TODO: write update comment functionality
+    console.log('update comment!');
   };
 
   return (
@@ -29,17 +42,28 @@ const ViewPostScreen = ({navigation}) => {
             keyExtractor={comment => comment.id}
             data={post.comments}
             renderItem={({item}) => {
-              return <Text style={styles.comment}>{item.body}</Text>;
+              return (
+                <Comment
+                  comment={item}
+                  navigation={navigation}
+                  style={styles.comment}
+                />
+              );
             }}
           />
         </View>
         {/* TODO: edit/delete comment */}
-        <TextInput
-          value={newComment}
-          onChangeText={setNewComment}
-          style={styles.commentInput}
-          onSubmitEditing={handleCommentSubmit}
-        />
+        <View style={styles.editCommentContainer}>
+          <TextInput
+            value={newComment}
+            onChangeText={setNewComment}
+            style={styles.commentInput}
+            onSubmitEditing={handleCommentSubmit}
+          />
+          <Pressable style={styles.icon} onPress={handleCommentSubmit}>
+            <MaterialCommunityIcons name="check" color={'#1b494a'} size={30} />
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -87,16 +111,24 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginVertical: 10,
   },
+  editCommentContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   comment: {
     borderColor: 'rgba(0,0,0,.3)',
     borderTopWidth: 1,
     paddingVertical: 15,
+    flexGrow: 1,
   },
   commentInput: {
     marginTop: 20,
     paddingHorizontal: 20,
     backgroundColor: 'white',
     borderRadius: 50,
+    flexGrow: 1,
   },
 });
 

@@ -95,7 +95,7 @@ function HomeScreen(posts) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.main}>
-        <Text>hey booooooo</Text>
+        <Text>Old app</Text>
       </ScrollView>
       <PostsList posts={posts} />
     </SafeAreaView>

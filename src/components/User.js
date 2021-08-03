@@ -6,28 +6,16 @@ import {
   StyleSheet,
   Pressable,
   Alert,
-  FlatList,
 } from 'react-native';
-import CheckBox from '@react-native-community/checkbox';
-import users from '../utils/users';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Post = ({post, navigation}) => {
-  const [editPost, setEditPost] = useState({...post});
+const User = ({user, navigation}) => {
+  const [editUser, setEditUser] = useState({...user});
   const [isEditing, setIsEditing] = useState(false);
 
-  const editorsMap = users.map(u => {
-    return {
-      id: u.id,
-      username: u.username,
-      assigned: editPost.editors.includes(u.id),
-    };
-  });
-  const [editors, setEditors] = useState([...editorsMap]);
-
   const handleEdit = val => {
-    setEditPost(val);
+    setEditUser(val);
   };
 
   const toggleEdit = () => {
@@ -45,14 +33,14 @@ const Post = ({post, navigation}) => {
 
   const handleDelete = () => {
     Alert.alert(
-      'Delete Post',
-      `Are you sure you want to delete this post? There's no going back...`,
+      'Delete User',
+      `Are you sure you want to delete this user? There's no going back...`,
       [
         {
           text: 'Yes, delete forever',
           onPress: () => {
-            // TODO: delete the post
-            console.log('Deleting post...');
+            // TODO: delete the user
+            console.log('Deleting user...');
           },
           style: 'destructive',
         },
@@ -69,46 +57,18 @@ const Post = ({post, navigation}) => {
     <Pressable
       style={styles.container}
       onPress={() => {
-        navigation.navigate('Post', {
-          post: post,
+        navigation.navigate('User', {
+          user: user,
         });
       }}>
       {isEditing ? (
         <View>
-          <Text style={styles.formLabel}>Post Title</Text>
+          <Text style={styles.formLabel}>Username</Text>
           <TextInput
-            style={styles.editPostInput}
-            onChangeText={val => handleEdit({...editPost, title: val})}>
-            {editPost.title}
+            style={styles.editUserInput}
+            onChangeText={val => handleEdit({...editUser, username: val})}>
+            {editUser.username}
           </TextInput>
-          <Text style={styles.formLabel}>Post Editors</Text>
-          <FlatList
-            keyExtractor={user => user.id}
-            data={editors}
-            renderItem={({item}) => {
-              return (
-                <View style={styles.checkboxContainer}>
-                  <CheckBox
-                    disabled={false}
-                    style={styles.textStyle}
-                    value={item.assigned}
-                    onValueChange={newValue => {
-                      let updatedEditors = editors.map(editor =>
-                        editor.id === item.id
-                          ? {
-                              ...editor,
-                              assigned: newValue,
-                            }
-                          : editor,
-                      );
-                      setEditors(updatedEditors);
-                    }}
-                  />
-                  <Text>{item.username}</Text>
-                </View>
-              );
-            }}
-          />
           <View style={styles.editOptionsContainer}>
             <Pressable style={styles.icon} onPress={handleCancel}>
               <MaterialCommunityIcons
@@ -130,20 +90,16 @@ const Post = ({post, navigation}) => {
         </View>
       ) : (
         <View>
-          <Text style={styles.bigText}>{post.title}</Text>
+          <Text style={styles.bigText}>{user.username}</Text>
           <View style={styles.commentContainer}>
             <Pressable
               onPress={() => {
-                navigation.navigate('Post', {
-                  post: post,
+                navigation.navigate('User', {
+                  user: user,
                 });
-              }}>
-              <Text style={styles.smallText}>
-                Comments ({post.comments.length})
-              </Text>
-            </Pressable>
+              }}
+            />
           </View>
-          {/* TODO: wrap with conditional for isAuthor's post */}
           <View style={styles.btnContainer}>
             <Pressable style={styles.icon} onPress={handleDelete}>
               <MaterialCommunityIcons
@@ -186,7 +142,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
   },
-  editPostInput: {
+  editUserInput: {
     fontSize: 20,
     color: 'black',
     backgroundColor: 'white',
@@ -210,14 +166,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   formLabel: {
-    color: '#000000',
     marginTop: 10,
     marginBottom: 5,
-  },
-  checkboxContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   saveLabel: {
     fontSize: 15,
@@ -229,4 +179,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Post;
+export default User;

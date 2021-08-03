@@ -17,6 +17,12 @@ const HomeScreen = ({navigation}) => {
         color="#000000"
         style={styles.btn}
       />
+      <Button
+        onPress={() => navigation.navigate('Users')}
+        title="Users"
+        color="#000000"
+        style={styles.btn}
+      />
     </View>
   );
 };
