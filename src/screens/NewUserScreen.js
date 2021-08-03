@@ -8,6 +8,9 @@ import {
   ScrollView,
 } from 'react-native';
 
+import {DataStore} from 'aws-amplify';
+import {User, Profile} from '../models';
+
 const NewUserScreen = ({navigation}) => {
   const [newUser, setNewUser] = useState({
     username: '',
@@ -20,6 +23,19 @@ const NewUserScreen = ({navigation}) => {
       label: '',
     },
   });
+
+  const handleCreateUser = async () => {
+    try {
+      const savedProfile = await DataStore.save(new Profile({...newProfile}));
+      const savedUser = await DataStore.save(
+        new User({...newUser, profile: savedProfile}),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+    navigation.navigate('Users');
+  };
+
   const handleEditUser = val => {
     setNewUser(val);
   };
@@ -61,26 +77,28 @@ const NewUserScreen = ({navigation}) => {
         <TextInput
           style={styles.input}
           onChangeText={val =>
-            handleEditProfile({...newProfile, avatar: {url: val}})
+            handleEditProfile({
+              ...newProfile,
+              avatar: {...newProfile.avatar, url: val},
+            })
           }
-          value={newProfile.lastName}
+          value={newProfile.avatar.url}
           placeholder="https://github.com/aws-amplify/amplify-js"
         />
         <Text style={styles.formLabel}>Avatar Label</Text>
         <TextInput
           style={styles.input}
           onChangeText={val =>
-            handleEditProfile({...newProfile, avatar: {url: val}})
+            handleEditProfile({
+              ...newProfile,
+              avatar: {...newProfile.avatar, label: val},
+            })
           }
-          value={newProfile.lastName}
+          value={newProfile.avatar.label}
           placeholder="Headshot"
         />
       </View>
-      <Button
-        onPress={() => navigation.navigate('Users')}
-        title="Create User"
-        color="#000000"
-      />
+      <Button onPress={handleCreateUser} title="Create User" color="#000000" />
     </ScrollView>
   );
 };

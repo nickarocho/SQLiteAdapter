@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,46 @@ import {
   Button,
   ScrollView,
 } from 'react-native';
-import User from '../components/User';
-import users from '../utils/users';
+import UserComponent from '../components/User';
+
+import {DataStore} from 'aws-amplify';
+import {User, Profile} from '../models';
 
 const UsersScreen = ({navigation}) => {
+  const [users, updateUsers] = useState([]);
+  useEffect(() => {
+    fetchUsers();
+    const userSubscription = DataStore.observe(User).subscribe(async () => {
+      try {
+        fetchUsers();
+      } catch (err) {
+        console.error('Error fetching posts: ', err);
+      }
+    });
+    const profileSubscription = DataStore.observe(Profile).subscribe(
+      async () => {
+        try {
+          fetchUsers();
+        } catch (err) {
+          console.error('Error fetching posts: ', err);
+        }
+      },
+    );
+    return () => {
+      userSubscription.unsubscribe();
+      profileSubscription.unsubscribe();
+    };
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const allUsers = await DataStore.query(User);
+      updateUsers(allUsers);
+    } catch (err) {
+      console.error('something went wrong with fetchUsers:', err);
+    }
+  };
+
   return (
     <ScrollView>
       <View style={styles.headingContainer}>
@@ -27,10 +63,11 @@ const UsersScreen = ({navigation}) => {
         data={users}
         renderItem={({item}) => {
           return (
-            <User
+            <UserComponent
               user={{...item}}
               style={styles.textStyle}
               navigation={navigation}
+              fetchUsers={fetchUsers}
             />
           );
         }}

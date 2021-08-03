@@ -6,11 +6,14 @@ import {
   StyleSheet,
   Pressable,
   Alert,
+  Button,
 } from 'react-native';
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const User = ({user, navigation}) => {
+import {DataStore} from 'aws-amplify';
+import {User} from '../models';
+
+const UserComponent = ({user, navigation, fetchUsers}) => {
   const [editUser, setEditUser] = useState({...user});
   const [isEditing, setIsEditing] = useState(false);
 
@@ -31,27 +34,16 @@ const User = ({user, navigation}) => {
     toggleEdit();
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete User',
-      `Are you sure you want to delete this user? There's no going back...`,
-      [
-        {
-          text: 'Yes, delete forever',
-          onPress: () => {
-            // TODO: delete the user
-            console.log('Deleting user...');
-          },
-          style: 'destructive',
-        },
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-      ],
-    );
-  };
+  async function handleDelete() {
+    try {
+      const thisUser = await DataStore.query(User, user.id);
+      DataStore.delete(thisUser);
+      console.log(`Successfully deleted user:`, thisUser);
+      fetchUsers();
+    } catch (err) {
+      console.error('something went wrong with handleDelete:', err);
+    }
+  }
 
   return (
     <Pressable
@@ -101,20 +93,20 @@ const User = ({user, navigation}) => {
             />
           </View>
           <View style={styles.btnContainer}>
-            <Pressable style={styles.icon} onPress={handleDelete}>
-              <MaterialCommunityIcons
-                name="delete"
-                color={'#6e1701'}
-                size={30}
-              />
-            </Pressable>
-            <Pressable style={styles.icon} onPress={toggleEdit}>
-              <MaterialCommunityIcons
-                name="pencil"
-                color={'#1b494a'}
-                size={30}
-              />
-            </Pressable>
+            <Button
+              title={'View profile'}
+              color="#000"
+              onPress={() => {
+                navigation.navigate('Profile', {
+                  user: user,
+                });
+              }}
+            />
+            <Button
+              title={'Delete user'}
+              color="#940005"
+              onPress={handleDelete}
+            />
           </View>
         </View>
       )}
@@ -179,4 +171,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default User;
+export default UserComponent;
