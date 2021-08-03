@@ -23,6 +23,12 @@ const HomeScreen = ({navigation}) => {
         color="#000000"
         style={styles.btn}
       />
+      <Button
+        onPress={() => navigation.navigate('NewUser')}
+        title="Create a New User"
+        color="#000000"
+        style={styles.btn}
+      />
     </View>
   );
 };

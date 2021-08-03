@@ -7,18 +7,16 @@ import {createAppContainer} from 'react-navigation';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from 'react-navigation-stack';
+
 import HomeScreen from './src/screens/HomeScreen';
 import PostsScreen from './src/screens/PostsScreen';
 import NewPostScreen from './src/screens/NewPostScreen';
 import ViewPostScreen from './src/screens/ViewPostScreen.js';
 import UsersScreen from './src/screens/UsersScreen';
 import NewUserScreen from './src/screens/NewUserScreen';
+import ViewProfileScreen from './src/screens/ViewProfileScreen.js';
 
-// Amplify.configure(awsconfig);
-
-// DataStore.configure({
-//   authModeStrategyType: AuthModeStrategyType.MULTI_AUTH,
-// });
+Amplify.configure(awsconfig);
 
 const Tab = createBottomTabNavigator();
 
@@ -79,6 +77,7 @@ const navigator = createStackNavigator(
     Post: ViewPostScreen,
     Users: UsersScreen,
     NewUser: NewUserScreen,
+    Profile: ViewProfileScreen,
   },
   {
     initialRouteName: 'Home',

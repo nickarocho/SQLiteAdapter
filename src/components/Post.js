@@ -1,70 +1,21 @@
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  Alert,
-  FlatList,
-} from 'react-native';
-import CheckBox from '@react-native-community/checkbox';
-import users from '../utils/users';
-
+import React from 'react';
+import {View, Text, StyleSheet, Pressable, Button} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Post = ({post, navigation}) => {
-  const [editPost, setEditPost] = useState({...post});
-  const [isEditing, setIsEditing] = useState(false);
+import {DataStore} from 'aws-amplify';
+import {Post} from '../models';
 
-  const editorsMap = users.map(u => {
-    return {
-      id: u.id,
-      username: u.username,
-      assigned: editPost.editors.includes(u.id),
-    };
-  });
-  const [editors, setEditors] = useState([...editorsMap]);
-
-  const handleEdit = val => {
-    setEditPost(val);
-  };
-
-  const toggleEdit = () => {
-    setIsEditing(previousState => !previousState);
-  };
-
-  const handleSave = () => {
-    // TODO: save data mutation
-    toggleEdit();
-  };
-
-  const handleCancel = () => {
-    toggleEdit();
-  };
-
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Post',
-      `Are you sure you want to delete this post? There's no going back...`,
-      [
-        {
-          text: 'Yes, delete forever',
-          onPress: () => {
-            // TODO: delete the post
-            console.log('Deleting post...');
-          },
-          style: 'destructive',
-        },
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-      ],
-    );
-  };
-
+const PostComponent = ({post, navigation, fetchPosts}) => {
+  async function handleDelete() {
+    try {
+      const thisPost = await DataStore.query(Post, post.id);
+      DataStore.delete(thisPost);
+      console.log(`Successfully deleted post:`, thisPost);
+      fetchPosts();
+    } catch (err) {
+      console.error('something went wrong with handleDelete:', err);
+    }
+  }
   return (
     <Pressable
       style={styles.container}
@@ -73,95 +24,38 @@ const Post = ({post, navigation}) => {
           post: post,
         });
       }}>
-      {isEditing ? (
-        <View>
-          <Text style={styles.formLabel}>Post Title</Text>
-          <TextInput
-            style={styles.editPostInput}
-            onChangeText={val => handleEdit({...editPost, title: val})}>
-            {editPost.title}
-          </TextInput>
-          <Text style={styles.formLabel}>Post Editors</Text>
-          <FlatList
-            keyExtractor={user => user.id}
-            data={editors}
-            renderItem={({item}) => {
-              return (
-                <View style={styles.checkboxContainer}>
-                  <CheckBox
-                    disabled={false}
-                    style={styles.textStyle}
-                    value={item.assigned}
-                    onValueChange={newValue => {
-                      let updatedEditors = editors.map(editor =>
-                        editor.id === item.id
-                          ? {
-                              ...editor,
-                              assigned: newValue,
-                            }
-                          : editor,
-                      );
-                      setEditors(updatedEditors);
-                    }}
-                  />
-                  <Text>{item.username}</Text>
-                </View>
-              );
+      <View>
+        <Text style={styles.bigText}>{post.title}</Text>
+        <View style={styles.commentContainer}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate('Post', {
+                post: post,
+              });
+            }}>
+            <Text style={styles.smallText}>
+              Comments ({post.comments.length})
+            </Text>
+          </Pressable>
+        </View>
+        {/* TODO: wrap with conditional for isAuthor's post */}
+        <View style={styles.btnContainer}>
+          <Button
+            title={'View post'}
+            color="#000"
+            onPress={() => {
+              navigation.navigate('Post', {
+                post: post,
+              });
             }}
           />
-          <View style={styles.editOptionsContainer}>
-            <Pressable style={styles.icon} onPress={handleCancel}>
-              <MaterialCommunityIcons
-                name="cancel"
-                color={'#6e1701'}
-                size={30}
-              />
-              <Text style={styles.cancelLabel}>Cancel</Text>
-            </Pressable>
-            <Pressable style={styles.icon} onPress={handleSave}>
-              <MaterialCommunityIcons
-                name="cloud-check"
-                color={'#1b494a'}
-                size={30}
-              />
-              <Text style={styles.saveLabel}>Save</Text>
-            </Pressable>
-          </View>
+          <Button
+            title={'Delete post'}
+            color="#940005"
+            onPress={handleDelete}
+          />
         </View>
-      ) : (
-        <View>
-          <Text style={styles.bigText}>{post.title}</Text>
-          <View style={styles.commentContainer}>
-            <Pressable
-              onPress={() => {
-                navigation.navigate('Post', {
-                  post: post,
-                });
-              }}>
-              <Text style={styles.smallText}>
-                Comments ({post.comments.length})
-              </Text>
-            </Pressable>
-          </View>
-          {/* TODO: wrap with conditional for isAuthor's post */}
-          <View style={styles.btnContainer}>
-            <Pressable style={styles.icon} onPress={handleDelete}>
-              <MaterialCommunityIcons
-                name="delete"
-                color={'#6e1701'}
-                size={30}
-              />
-            </Pressable>
-            <Pressable style={styles.icon} onPress={toggleEdit}>
-              <MaterialCommunityIcons
-                name="pencil"
-                color={'#1b494a'}
-                size={30}
-              />
-            </Pressable>
-          </View>
-        </View>
-      )}
+      </View>
     </Pressable>
   );
 };
@@ -197,6 +91,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: 20,
+    textAlign: 'right',
   },
   icon: {
     marginRight: 10,
@@ -229,4 +124,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Post;
+export default PostComponent;

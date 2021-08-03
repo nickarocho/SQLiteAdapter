@@ -4,12 +4,14 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  SafeAreaView,
+  ScrollView,
   Button,
   Switch,
   FlatList,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
+import {DataStore} from '@aws-amplify/datastore';
+import {Post} from '../models';
 
 // TODO: get all users from DS
 import users from '../utils/users';
@@ -18,7 +20,7 @@ const NewPostScreen = ({navigation}) => {
   const [newPost, setNewPost] = useState({
     title: '',
     views: 0,
-    metadata: '',
+    metadata: '{}',
     draft: true,
     rating: 0,
     editors: [],
@@ -38,8 +40,18 @@ const NewPostScreen = ({navigation}) => {
     setNewPost(val);
   };
 
+  async function createPost() {
+    if (!newPost.title) return;
+    try {
+      await DataStore.save(new Post({...newPost}));
+      navigation.navigate('Posts');
+    } catch (err) {
+      console.error('something went wrong with createPost:', err);
+    }
+  }
+
   return (
-    <SafeAreaView>
+    <ScrollView>
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>🖋 Create a New Post</Text>
       </View>
@@ -47,7 +59,7 @@ const NewPostScreen = ({navigation}) => {
         <Text style={styles.formLabel}>Post title</Text>
         <TextInput
           style={styles.input}
-          onChangeText={val => handleEdit({...newPost, username: val})}
+          onChangeText={val => handleEdit({...newPost, title: val})}
           value={newPost}
           placeholder="Post title"
           multiline
@@ -56,7 +68,10 @@ const NewPostScreen = ({navigation}) => {
         <Text style={styles.formLabel}>Views</Text>
         <TextInput
           style={styles.input}
-          onChangeText={val => handleEdit({...newPost, views: val})}
+          onChangeText={val => {
+            const parsedVal = parseInt(val);
+            handleEdit({...newPost, views: parsedVal});
+          }}
           value={newPost}
           keyboardType={'number-pad'}
           placeholder="Enter a number"
@@ -72,11 +87,15 @@ const NewPostScreen = ({navigation}) => {
         <Text style={styles.formLabel}>Rating</Text>
         <TextInput
           style={styles.input}
-          onChangeText={val => handleEdit({...newPost, rating: val})}
+          onChangeText={val => {
+            const parsedVal = parseInt(val);
+            handleEdit({...newPost, rating: parsedVal});
+          }}
           value={newPost}
           keyboardType={'number-pad'}
           placeholder="0 - 10"
         />
+        <Text style={styles.formLabel}>Editors</Text>
         <FlatList
           keyExtractor={user => user.id}
           data={editors}
@@ -109,12 +128,8 @@ const NewPostScreen = ({navigation}) => {
           }}
         />
       </View>
-      <Button
-        onPress={() => navigation.navigate('Posts')}
-        title="Create Post"
-        color="#000000"
-      />
-    </SafeAreaView>
+      <Button onPress={createPost} title="Create Post" color="#000000" />
+    </ScrollView>
   );
 };
 
@@ -130,16 +145,14 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 10,
     paddingHorizontal: 20,
-    borderColor: 'rgba(0,0,0,.2)',
-    borderWidth: 5,
-    borderRadius: 10,
     padding: 10,
     fontSize: 20,
   },
   formLabel: {
     color: '#000000',
-    marginTop: 10,
-    marginBottom: 5,
+    marginTop: 20,
+    marginBottom: 10,
+    fontWeight: 'bold',
   },
   input: {
     backgroundColor: '#fff',

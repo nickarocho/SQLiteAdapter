@@ -5,14 +5,14 @@ import {
   StyleSheet,
   FlatList,
   Button,
-  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import User from '../components/User';
 import users from '../utils/users';
 
 const UsersScreen = ({navigation}) => {
   return (
-    <SafeAreaView>
+    <ScrollView>
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>Users ({users.length})</Text>
         <Button
@@ -35,7 +35,7 @@ const UsersScreen = ({navigation}) => {
           );
         }}
       />
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 

@@ -1,16 +1,26 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   Button,
-  SafeAreaView,
+  ScrollView,
 } from 'react-native';
-import Post from '../components/Post';
+import PostComponent from '../components/Post';
+
+import Amplify, {DataStore, AuthModeStrategyType} from 'aws-amplify';
+import awsconfig from '../../src/aws-exports';
+import {Post, Comment} from '../models';
+
+Amplify.configure(awsconfig);
+
+DataStore.configure({
+  authModeStrategyType: AuthModeStrategyType.MULTI_AUTH,
+});
 
 const PostsScreen = ({navigation}) => {
-  const posts = [
+  const [posts, updatePosts] = useState([
     {
       id: '37c7b9d4-d854-42c8-91a8-09be8f2bfeea',
       title: 'Post 1',
@@ -171,9 +181,58 @@ const PostsScreen = ({navigation}) => {
         },
       ],
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    fetchPosts();
+    const postSubscription = DataStore.observe(Post).subscribe(async () => {
+      try {
+        fetchPosts();
+      } catch (err) {
+        console.error('Error fetching posts: ', err);
+      }
+    });
+    // const commentSubscription = DataStore.observe(Comment).subscribe(
+    //   async () => {
+    //     try {
+    //       alert('newComment!');
+    //     } catch (err) {
+    //       console.log(err);
+    //     }
+    //   },
+    // );
+    return () => {
+      postSubscription.unsubscribe();
+      // commentSubscription.unsubscribe();
+    };
+  }, []);
+
+  async function fetchPosts() {
+    try {
+      const allPosts = await DataStore.query(Post);
+
+      // merge Post model with Comment model
+      Promise.all(
+        allPosts.map(async post => {
+          let id = post.id;
+          const comments = (await DataStore.query(Comment)).filter(
+            c => c.post.id === id,
+          );
+          console.log({comments});
+          return {...post, comments};
+        }),
+      ).then(syncedPosts => {
+        // store the merged data in state
+        // getting the newest post first... TODO: should do this in the query
+        updatePosts(syncedPosts.reverse());
+      });
+    } catch (err) {
+      console.error('something went wrong with fetchPosts:', err);
+    }
+  }
+
   return (
-    <SafeAreaView>
+    <ScrollView>
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>Posts ({posts.length})</Text>
         <Button
@@ -188,15 +247,16 @@ const PostsScreen = ({navigation}) => {
         data={posts}
         renderItem={({item}) => {
           return (
-            <Post
+            <PostComponent
               post={{...item}}
               style={styles.textStyle}
               navigation={navigation}
+              fetchPosts={fetchPosts}
             />
           );
         }}
       />
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 

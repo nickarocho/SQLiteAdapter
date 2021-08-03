@@ -57,7 +57,7 @@ const User = ({user, navigation}) => {
     <Pressable
       style={styles.container}
       onPress={() => {
-        navigation.navigate('User', {
+        navigation.navigate('Profile', {
           user: user,
         });
       }}>

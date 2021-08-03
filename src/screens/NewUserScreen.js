@@ -4,25 +4,76 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  SafeAreaView,
   Button,
+  ScrollView,
 } from 'react-native';
 
 const NewUserScreen = ({navigation}) => {
-  const [newUser, setNewUser] = useState('');
+  const [newUser, setNewUser] = useState({
+    username: '',
+  });
+  const [newProfile, setNewProfile] = useState({
+    firstName: '',
+    lastName: '',
+    avatar: {
+      url: '',
+      label: '',
+    },
+  });
+  const handleEditUser = val => {
+    setNewUser(val);
+  };
+  const handleEditProfile = val => {
+    setNewProfile(val);
+  };
   return (
-    <SafeAreaView>
+    <ScrollView>
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>🖋 Create a New User</Text>
       </View>
-      <View>
+      <View style={styles.newUserContainer}>
+        <Text style={styles.formLabel}>Username</Text>
         <TextInput
           style={styles.input}
-          onChangeText={setNewUser}
-          value={newUser}
-          placeholder="Create a new user..."
-          multiline
-          numberOfLines={4}
+          onChangeText={val => handleEditUser({username: val})}
+          value={newUser.username}
+          placeholder="joeshmoe"
+        />
+        <Text style={styles.formLabel}>First name</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={val =>
+            handleEditProfile({...newProfile, firstName: val})
+          }
+          value={newProfile.firstName}
+          placeholder="Joe"
+        />
+        <Text style={styles.formLabel}>Last name</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={val =>
+            handleEditProfile({...newProfile, lastName: val})
+          }
+          value={newProfile.lastName}
+          placeholder="Shmoe"
+        />
+        <Text style={styles.formLabel}>Avatar URL</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={val =>
+            handleEditProfile({...newProfile, avatar: {url: val}})
+          }
+          value={newProfile.lastName}
+          placeholder="https://github.com/aws-amplify/amplify-js"
+        />
+        <Text style={styles.formLabel}>Avatar Label</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={val =>
+            handleEditProfile({...newProfile, avatar: {url: val}})
+          }
+          value={newProfile.lastName}
+          placeholder="Headshot"
         />
       </View>
       <Button
@@ -30,11 +81,16 @@ const NewUserScreen = ({navigation}) => {
         title="Create User"
         color="#000000"
       />
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headingContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -42,7 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 20,
   },
-  input: {
+  newUserContainer: {
     marginVertical: 10,
     marginHorizontal: 10,
     paddingHorizontal: 20,
@@ -51,6 +107,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     fontSize: 20,
+  },
+  formLabel: {
+    color: '#000000',
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  input: {
+    backgroundColor: '#fff',
   },
   heading: {
     fontSize: 25,

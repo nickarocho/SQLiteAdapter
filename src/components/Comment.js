@@ -7,10 +7,12 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Comment = ({comment, navigation}) => {
+import {Comment} from '../models';
+import {DataStore} from 'aws-amplify';
+
+const CommentComponent = ({comment, navigation, fetchComments}) => {
   const [editComment, setEditComment] = useState(comment.content);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -27,31 +29,35 @@ const Comment = ({comment, navigation}) => {
     console.log('submit comment!');
   };
 
-  const handleUpdateComment = () => {
-    // TODO: write update comment functionality
-    console.log('update comment!');
+  const handleUpdateComment = async () => {
+    try {
+      const original = await DataStore.query(Comment, comment.id);
+      console.log({original});
+      await DataStore.save(
+        Comment.copyOf(original, updated => {
+          updated.content = editComment;
+        }),
+      ).then(updated => {
+        console.log({updated});
+        // setEditComment({
+        //   ...updated,
+        // });
+        toggleEdit();
+      });
+    } catch (err) {
+      console.error('something went wrong with handleUpdatePost', err);
+    }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Post',
-      `Are you sure you want to delete this post? There's no going back...`,
-      [
-        {
-          text: 'Yes, delete forever',
-          onPress: () => {
-            // TODO: delete the post
-            console.log('Deleting post...');
-          },
-          style: 'destructive',
-        },
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-      ],
-    );
+  const deleteComment = async () => {
+    try {
+      const thisComment = await DataStore.query(Comment, comment.id);
+      DataStore.delete(thisComment);
+      console.log(`Successfully deleted comment:`, thisComment);
+      fetchComments();
+    } catch (err) {
+      console.error('something went wrong with handleDelete:', err);
+    }
   };
 
   return (
@@ -63,8 +69,9 @@ const Comment = ({comment, navigation}) => {
             value={editComment}
             onChangeText={setEditComment}
             style={styles.editCommentInput}
+            onSubmitEditing={handleUpdateComment}
           />
-          <Pressable style={styles.icon} onPress={toggleEdit}>
+          <Pressable style={styles.icon} onPress={handleUpdateComment}>
             <MaterialCommunityIcons
               name="cloud-check"
               color={'#1b494a'}
@@ -76,7 +83,10 @@ const Comment = ({comment, navigation}) => {
         <View style={styles.editCommentContainer}>
           <Text style={styles.comment}>{comment.content}</Text>
           <Pressable style={styles.icon} onPress={toggleEdit}>
-            <MaterialCommunityIcons name="pencil" color={'#1b494a'} size={30} />
+            <MaterialCommunityIcons name="pencil" color={'#1b494a'} size={20} />
+          </Pressable>
+          <Pressable style={styles.icon} onPress={deleteComment}>
+            <MaterialCommunityIcons name="delete" color={'#940005'} size={20} />
           </Pressable>
         </View>
       )}
@@ -172,4 +182,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Comment;
+export default CommentComponent;
