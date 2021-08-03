@@ -1,7 +1,7 @@
 import * as React from 'react';
-import Amplify from 'aws-amplify';
+import Amplify, {Auth} from 'aws-amplify';
+import {withAuthenticator} from 'aws-amplify-react-native';
 import awsconfig from './src/aws-exports.js';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {createAppContainer} from 'react-navigation';
 import {NavigationContainer} from '@react-navigation/native';
@@ -15,6 +15,8 @@ import ViewPostScreen from './src/screens/ViewPostScreen.js';
 import UsersScreen from './src/screens/UsersScreen';
 import NewUserScreen from './src/screens/NewUserScreen';
 import ViewProfileScreen from './src/screens/ViewProfileScreen.js';
+
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 Amplify.configure(awsconfig);
 
@@ -83,5 +85,10 @@ const navigator = createStackNavigator(
     initialRouteName: 'Home',
   },
 );
+
+// export default withAuthenticator(createAppContainer(navigator), {
+//   // Render a sign out button once logged in
+//   includeGreetings: true,
+// });
 
 export default createAppContainer(navigator);
