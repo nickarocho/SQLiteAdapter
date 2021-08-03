@@ -40,7 +40,7 @@ const ViewProfileScreen = ({navigation}) => {
             onPress: () => {
               setIsEditing(previousState => !previousState);
               setEditedProfile({
-                ...user,
+                ...user.profile,
               });
             },
             style: 'cancel',
@@ -161,10 +161,10 @@ const ViewProfileScreen = ({navigation}) => {
           <Text style={styles.bigText}>{editedProfile.lastName}</Text>
 
           <Text style={styles.listLabel}>Avatar URL</Text>
-          <Text style={styles.bigText}>{editedProfile.avatar.url}</Text>
+          <Text style={styles.bigText}>{editedProfile.avatar?.url}</Text>
 
           <Text style={styles.listLabel}>Avatar label</Text>
-          <Text style={styles.bigText}>{editedProfile.avatar.label}</Text>
+          <Text style={styles.bigText}>{editedProfile.avatar?.label}</Text>
         </View>
       )}
       <View style={styles.postsContainer}>
