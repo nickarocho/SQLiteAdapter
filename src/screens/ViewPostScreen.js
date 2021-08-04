@@ -14,7 +14,7 @@ import CheckBox from '@react-native-community/checkbox';
 import CommentComponent from '../components/Comment';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {Post, Comment} from '../models';
+import {Post, Comment, PostEditor, User} from '../models';
 import {DataStore} from 'aws-amplify';
 
 const ViewPostScreen = ({navigation}) => {
@@ -22,6 +22,8 @@ const ViewPostScreen = ({navigation}) => {
   const [editedPost, setEditedPost] = useState({...post});
   const [newComment, setNewComment] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [editors, setEditors] = useState([]);
+  const [editorModels, sedEditorModels] = useState([]);
 
   const toggleEditPostSwitch = () => {
     if (isEditing) {
@@ -59,10 +61,12 @@ const ViewPostScreen = ({navigation}) => {
       console.error('No Post ID passed to handleUpdate');
     }
     try {
-      const original = await DataStore.query(Post, id);
+      const originalPost = await DataStore.query(Post, id);
+      console.log({editors, editorModels});
       await DataStore.save(
-        Post.copyOf(original, updated => {
+        Post.copyOf(originalPost, updated => {
           Object.assign(updated, editedPost);
+          Object.assign((updated.editors = editorModels));
         }),
       ).then(updated => {
         setEditedPost({
@@ -103,7 +107,47 @@ const ViewPostScreen = ({navigation}) => {
     }
   }, [post]);
 
+  const createEditorsMap = async postEditorModels => {
+    const editorIds = postEditorModels.map(e => e.id);
+    const allUsers = await DataStore.query(User);
+    return allUsers.map(user => {
+      return {
+        ...user,
+        assigned: editorIds.includes(user.id),
+      };
+    });
+  };
+
+  const createPostEditor = async newEditor => {
+    const newEditorModel = await DataStore.save(
+      new PostEditor({
+        post: post,
+        editor: newEditor,
+      }),
+    );
+    console.log({newEditorModel});
+    return newEditorModel;
+  };
+
+  const fetchEditors = useCallback(async () => {
+    try {
+      console.log({post});
+      const thisPostEditorsModels = (await DataStore.query(PostEditor))
+        .filter(pe => {
+          if (!pe.post) return null;
+          return pe.post.id === post.id;
+        })
+        .map(pe => pe.editor);
+      sedEditorModels(thisPostEditorsModels);
+      const editorsMap = await createEditorsMap(thisPostEditorsModels);
+      setEditors(editorsMap);
+    } catch (err) {
+      console.error('something went wrong with fetchEditors:', err);
+    }
+  }, [post]);
+
   useEffect(() => {
+    fetchEditors();
     fetchComments();
     const commentSubscription = DataStore.observe(Comment).subscribe(
       async () => {
@@ -114,10 +158,20 @@ const ViewPostScreen = ({navigation}) => {
         }
       },
     );
+    const postEditorsSubscription = DataStore.observe(PostEditor).subscribe(
+      async () => {
+        try {
+          fetchEditors();
+        } catch (err) {
+          console.error('Error fetching postEditors: ', err);
+        }
+      },
+    );
     return () => {
       commentSubscription.unsubscribe();
+      postEditorsSubscription.unsubscribe();
     };
-  }, [fetchComments]);
+  }, [fetchComments, fetchEditors]);
 
   return (
     <ScrollView style={styles.container}>
@@ -184,8 +238,8 @@ const ViewPostScreen = ({navigation}) => {
 
           <Text style={styles.listLabel}>Editors</Text>
           <FlatList
-            keyExtractor={user => user.id}
-            data={editedPost.editors}
+            keyExtractor={editor => editor.id}
+            data={editors}
             renderItem={({item}) => {
               return (
                 <View style={styles.checkboxContainer}>
@@ -193,8 +247,8 @@ const ViewPostScreen = ({navigation}) => {
                     disabled={false}
                     style={styles.textStyle}
                     value={item.assigned}
-                    onValueChange={newValue => {
-                      let updatedEditors = editedPost.editors.map(editor =>
+                    onValueChange={async newValue => {
+                      let updatedEditors = editors.map(editor =>
                         editor.id === item.id
                           ? {
                               ...editor,
@@ -202,10 +256,31 @@ const ViewPostScreen = ({navigation}) => {
                             }
                           : editor,
                       );
-                      handleEdit({
-                        ...editedPost,
-                        editors: updatedEditors,
-                      });
+
+                      try {
+                        let editorModel = (
+                          await DataStore.query(PostEditor)
+                        ).filter(pe => {
+                          if (!pe.editor) return null;
+                          return pe.editor.id === item.id;
+                        });
+                        if (editorModel.length === 0) {
+                          editorModel = await createPostEditor(item);
+                          console.log({editorModels});
+
+                          // update the stored models to persist copyOf update on saving edits
+                          // TODO: remove selected model if 'newValue' === false
+                          sedEditorModels(...editorModels, editorModel);
+
+                          // console.log({item, editorModel, updatedEditors});
+                          setEditors(updatedEditors);
+                        }
+                      } catch (err) {
+                        console.error(
+                          'Something went wrong querying/creating PostEditor',
+                          err,
+                        );
+                      }
                     }}
                   />
                   <Text>{item.username}</Text>
@@ -233,7 +308,7 @@ const ViewPostScreen = ({navigation}) => {
           <Text style={styles.listLabel}>Editors</Text>
           <FlatList
             keyExtractor={user => user.id}
-            data={editedPost.editors}
+            data={editors}
             renderItem={({item}) => {
               return (
                 <View style={styles.checkboxContainer}>

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import {DataStore} from '@aws-amplify/datastore';
-import {Post, User} from '../models';
+import {Post, User, PostEditor} from '../models';
 
 const NewPostScreen = ({navigation}) => {
   const [newPost, setNewPost] = useState({
@@ -50,10 +50,37 @@ const NewPostScreen = ({navigation}) => {
     setNewPost(val);
   };
 
+  const createPostEditors = async post => {
+    const result = await Promise.all(
+      editors
+        .filter(item => item.assigned)
+        .map(async item => {
+          const user = await DataStore.query(User, item.id);
+          const postEditor = await DataStore.save(
+            new PostEditor({
+              post: post,
+              editor: user,
+            }),
+          );
+          return postEditor;
+        }),
+    );
+    return result;
+  };
+
   async function createPost() {
     if (!newPost.title) return;
     try {
-      await DataStore.save(new Post({...newPost}));
+      const post = await DataStore.save(
+        new Post({
+          title: newPost.title,
+          draft: newPost.draft,
+          metadata: newPost.metadata,
+          rating: newPost.rating,
+          views: newPost.views,
+        }),
+      );
+      const postEditors = await createPostEditors(post);
       navigation.navigate('Posts');
     } catch (err) {
       console.error('something went wrong with createPost:', err);

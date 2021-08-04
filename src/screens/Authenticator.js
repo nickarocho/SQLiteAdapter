@@ -8,6 +8,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import PostComponent from '../components/Post';
+import {Authenticator} from 'aws-amplify-react-native';
 
 import {DataStore} from 'aws-amplify';
 import {Post, Comment} from '../models';
@@ -66,34 +67,53 @@ const PostsScreen = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView>
-      <View style={styles.headingContainer}>
-        <Text style={styles.heading}>
-          Posts (<Text testID="post-count">{posts.length}</Text>)
-        </Text>
-        <Button
-          style={styles.addPostBtn}
-          onPress={() => navigation.navigate('NewPost')}
-          testID="btn-navigate-new-post"
-          title="✚ New Post"
-          color="black"
-        />
-      </View>
-      <FlatList
-        keyExtractor={post => post.id}
-        data={posts}
-        renderItem={({item}) => {
-          return (
-            <PostComponent
-              post={{...item}}
-              style={styles.textStyle}
-              navigation={navigation}
-              fetchPosts={fetchPosts}
-            />
-          );
-        }}
-      />
-    </SafeAreaView>
+    <Authenticator
+      // Optionally hard-code an initial state
+      authState="signIn"
+      // Pass in an already authenticated CognitoUser or FederatedUser object
+      authData={CognitoUser | 'username'}
+      // Fired when Authentication State changes
+      onStateChange={authState => console.log(authState)}
+      // An object referencing federation and/or social providers
+      // The federation here means federation with the Cognito Identity Pool Service
+      // *** Only supported on React/Web (Not React Native) ***
+      // For React Native use the API Auth.federatedSignIn()
+      federated={myFederatedConfig}
+      // A theme object to override the UI / styling
+      theme={myCustomTheme}
+      // Hide specific components within the Authenticator
+      // *** Only supported on React/Web (Not React Native)  ***
+      hide={[
+        Greetings,
+        SignIn,
+        ConfirmSignIn,
+        RequireNewPassword,
+        SignUp,
+        ConfirmSignUp,
+        VerifyContact,
+        ForgotPassword,
+        TOTPSetup,
+        Loading,
+      ]}
+      // or hide all the default components
+      hideDefault={true}
+      // Pass in an aws-exports configuration
+      amplifyConfig={myAWSExports}
+      // Pass in a message map for error strings
+      errorMessage={myMessageMap}>
+      // Default components can be customized/passed in as child components. //
+      Define them here if you used hideDefault={true}
+      <Greetings />
+      <SignIn federated={myFederatedConfig} />
+      <ConfirmSignIn />
+      <RequireNewPassword />
+      <SignUp />
+      <ConfirmSignUp />
+      <VerifyContact />
+      <ForgotPassword />
+      <TOTPSetup />
+      <Loading />
+    </Authenticator>
   );
 };
 

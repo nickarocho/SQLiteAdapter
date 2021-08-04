@@ -15,6 +15,7 @@ import ViewPostScreen from './src/screens/ViewPostScreen.js';
 import UsersScreen from './src/screens/UsersScreen';
 import NewUserScreen from './src/screens/NewUserScreen';
 import ViewProfileScreen from './src/screens/ViewProfileScreen.js';
+import Authenticator from './src/screens/Authenticator.js';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
