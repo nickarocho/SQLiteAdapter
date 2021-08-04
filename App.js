@@ -22,7 +22,7 @@ Amplify.configure(awsconfig);
 
 const Tab = createBottomTabNavigator();
 
-function Tabs() {
+const Tabs = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator>
@@ -69,7 +69,7 @@ function Tabs() {
       </Tab.Navigator>
     </NavigationContainer>
   );
-}
+};
 
 const navigator = createStackNavigator(
   {

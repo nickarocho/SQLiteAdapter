@@ -16,8 +16,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import {Post, Comment} from '../models';
 import {DataStore} from 'aws-amplify';
-// TODO: get users via DS query
-import users from '../utils/users';
 
 const ViewPostScreen = ({navigation}) => {
   const {post} = navigation.state.params;
@@ -56,16 +54,7 @@ const ViewPostScreen = ({navigation}) => {
     }
   };
 
-  const editorsMap = users.map(u => {
-    return {
-      id: u.id,
-      username: u.username,
-      assigned: editedPost.editors.includes(u.id),
-    };
-  });
-  const [editors, setEditors] = useState([...editorsMap]);
-
-  async function handleUpdatePost(id) {
+  const handleUpdatePost = async id => {
     if (!id) {
       console.error('No Post ID passed to handleUpdate');
     }
@@ -83,13 +72,13 @@ const ViewPostScreen = ({navigation}) => {
     } catch (err) {
       console.error('something went wrong with handleUpdatePost', err);
     }
-  }
+  };
 
   const handleEdit = val => {
     setEditedPost(val);
   };
 
-  async function handleSubmitComment() {
+  const handleSubmitComment = async () => {
     try {
       await DataStore.save(
         new Comment({
@@ -100,7 +89,7 @@ const ViewPostScreen = ({navigation}) => {
     } catch (err) {
       console.error('something went wrong with handleSubmitComment:', err);
     }
-  }
+  };
 
   const fetchComments = useCallback(async () => {
     try {
@@ -134,19 +123,22 @@ const ViewPostScreen = ({navigation}) => {
     <ScrollView style={styles.container}>
       <Pressable
         style={styles.backContainer}
+        testID="navigate-back-all-posts"
         onPress={() => navigation.navigate('Posts')}>
         <MaterialCommunityIcons name="arrow-left" size={20} />
-
         <Text style={styles.back}>All posts</Text>
       </Pressable>
+
       <Text style={styles.editProfileLabel}>Edit Profile</Text>
       <Switch
+        testID={`switch-toggle-edit-post-${post.id}`}
         trackColor={{false: '#767577', true: '#81b0ff'}}
         thumbColor={isEditing ? '#f5dd4b' : '#f4f3f4'}
         ios_backgroundColor="#3e3e3e"
         onValueChange={toggleEditPostSwitch}
         value={isEditing}
       />
+
       {isEditing ? (
         <View style={styles.newPostContainer}>
           <Text style={styles.listLabel}>Post title</Text>
@@ -193,7 +185,7 @@ const ViewPostScreen = ({navigation}) => {
           <Text style={styles.listLabel}>Editors</Text>
           <FlatList
             keyExtractor={user => user.id}
-            data={editors}
+            data={editedPost.editors}
             renderItem={({item}) => {
               return (
                 <View style={styles.checkboxContainer}>
@@ -202,7 +194,7 @@ const ViewPostScreen = ({navigation}) => {
                     style={styles.textStyle}
                     value={item.assigned}
                     onValueChange={newValue => {
-                      let updatedEditors = editors.map(editor =>
+                      let updatedEditors = editedPost.editors.map(editor =>
                         editor.id === item.id
                           ? {
                               ...editor,
@@ -210,10 +202,9 @@ const ViewPostScreen = ({navigation}) => {
                             }
                           : editor,
                       );
-                      setEditors(updatedEditors);
                       handleEdit({
                         ...editedPost,
-                        editors: editors.map(editor => editor.id),
+                        editors: updatedEditors,
                       });
                     }}
                   />
@@ -242,7 +233,7 @@ const ViewPostScreen = ({navigation}) => {
           <Text style={styles.listLabel}>Editors</Text>
           <FlatList
             keyExtractor={user => user.id}
-            data={editors}
+            data={editedPost.editors}
             renderItem={({item}) => {
               return (
                 <View style={styles.checkboxContainer}>
@@ -255,6 +246,7 @@ const ViewPostScreen = ({navigation}) => {
           />
         </View>
       )}
+
       <View style={styles.commentContainer}>
         <Text style={styles.commentLabel}>
           Comments ({editedPost.comments.length})
@@ -274,6 +266,7 @@ const ViewPostScreen = ({navigation}) => {
           }}
         />
       </View>
+
       <View style={styles.editCommentContainer}>
         <TextInput
           value={newComment}
@@ -282,7 +275,10 @@ const ViewPostScreen = ({navigation}) => {
           onSubmitEditing={handleSubmitComment}
           placeholder={'Add a comment...'}
         />
-        <Pressable style={styles.icon} onPress={handleSubmitComment}>
+        <Pressable
+          style={styles.icon}
+          testID="icon-submit-comment"
+          onPress={handleSubmitComment}>
           <MaterialCommunityIcons name="check" color={'#1b494a'} size={30} />
         </Pressable>
       </View>

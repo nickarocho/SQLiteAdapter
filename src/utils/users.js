@@ -1,4 +1,9 @@
-const users = [
+import {User} from '../models';
+import {DataStore} from 'aws-amplify';
+
+export const allUsers = DataStore.query(User);
+
+export const dummyUsers = [
   {
     id: '1',
     username: 'joeshmoe',
@@ -48,5 +53,3 @@ const users = [
     posts: [{body: 'post 1', id: '13938032-fadc-4d25-b771-bfb5892c02b5'}],
   },
 ];
-
-export default users;

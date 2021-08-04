@@ -89,6 +89,7 @@ const ViewProfileScreen = ({navigation}) => {
     <ScrollView style={styles.container}>
       <Pressable
         style={styles.backContainer}
+        testID="navigate-back-all-users"
         onPress={() => navigation.navigate('Users')}>
         <MaterialCommunityIcons name="arrow-left" size={20} />
 
@@ -96,6 +97,7 @@ const ViewProfileScreen = ({navigation}) => {
       </Pressable>
       <Text style={styles.editProfileLabel}>Edit Profile</Text>
       <Switch
+        testID={`switch-toggle-edit-user-profile-${user.id}`}
         trackColor={{false: '#767577', true: '#81b0ff'}}
         thumbColor={isEditing ? '#f5dd4b' : '#f4f3f4'}
         ios_backgroundColor="#3e3e3e"
@@ -168,6 +170,8 @@ const ViewProfileScreen = ({navigation}) => {
         </View>
       )}
       <View style={styles.postsContainer}>
+        {/* TODO: Show user's posts */}
+
         {/* <Text style={styles.commentLabel}>
           Posts ({editedUser.posts.length})
         </Text> */}
@@ -215,11 +219,6 @@ const styles = StyleSheet.create({
     color: 'black',
     backgroundColor: '#fff',
   },
-  checkboxContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   commentLabel: {
     fontWeight: 'bold',
     color: 'black',
@@ -228,12 +227,6 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     marginVertical: 10,
-  },
-  editCommentContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   backContainer: {
     display: 'flex',

@@ -55,6 +55,7 @@ const UsersScreen = ({navigation}) => {
           style={styles.addPostBtn}
           onPress={() => navigation.navigate('NewUser')}
           title="✚ New User"
+          testID="btn-navigate-new-user"
           color="black"
         />
       </View>

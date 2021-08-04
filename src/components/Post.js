@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, Text, StyleSheet, Pressable, Button} from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {DataStore} from 'aws-amplify';
 import {Post} from '../models';
@@ -19,6 +18,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
   return (
     <Pressable
       style={styles.container}
+      testID={`post-${post.id}`}
       onPress={() => {
         navigation.navigate('Post', {
           post: post,
@@ -26,23 +26,19 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
       }}>
       <View>
         <Text style={styles.bigText}>{post.title}</Text>
-        <View style={styles.commentContainer}>
-          <Pressable
-            onPress={() => {
-              navigation.navigate('Post', {
-                post: post,
-              });
-            }}>
-            <Text style={styles.smallText}>
-              Comments ({post.comments.length})
-            </Text>
-          </Pressable>
-        </View>
+        <Text style={styles.smallText}>
+          Comments (
+          <Text testID={`comment-count-${post.id}`}>
+            {post.comments.length}
+          </Text>
+          )
+        </Text>
         {/* TODO: wrap with conditional for isAuthor's post */}
         <View style={styles.btnContainer}>
           <Button
             title={'View post'}
             color="#000"
+            testID={`btn-view-post-${post.id}`}
             onPress={() => {
               navigation.navigate('Post', {
                 post: post,
@@ -51,6 +47,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
           />
           <Button
             title={'Delete post'}
+            testID={`btn-delete-post-${post.id}`}
             color="#940005"
             onPress={handleDelete}
           />
@@ -59,6 +56,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
     </Pressable>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     minHeight: 100,
@@ -80,47 +78,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
   },
-  editPostInput: {
-    fontSize: 20,
-    color: 'black',
-    backgroundColor: 'white',
-    borderColor: 'black',
-  },
   btnContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: 20,
     textAlign: 'right',
-  },
-  icon: {
-    marginRight: 10,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  editOptionsContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  formLabel: {
-    color: '#000000',
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  checkboxContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  saveLabel: {
-    fontSize: 15,
-    color: '#1b494a',
-  },
-  cancelLabel: {
-    fontSize: 15,
-    color: '#6e1701',
   },
 });
 

@@ -1,12 +1,5 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  Alert,
-} from 'react-native';
+import {View, Text, TextInput, StyleSheet, Pressable} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {Comment} from '../models';
@@ -27,9 +20,7 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
         Comment.copyOf(original, updated => {
           updated.content = editComment;
         }),
-      ).then(updated => {
-        toggleEdit();
-      });
+      ).then(() => toggleEdit());
     } catch (err) {
       console.error('something went wrong with handleUpdatePost', err);
     }
@@ -39,7 +30,7 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
     try {
       const thisComment = await DataStore.query(Comment, comment.id);
       DataStore.delete(thisComment);
-      console.log(`Successfully deleted comment:`, thisComment);
+      console.log('Successfully deleted comment:', thisComment);
       fetchComments();
     } catch (err) {
       console.error('something went wrong with handleDelete:', err);
@@ -57,7 +48,10 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
             style={styles.editCommentInput}
             onSubmitEditing={handleUpdateComment}
           />
-          <Pressable style={styles.icon} onPress={handleUpdateComment}>
+          <Pressable
+            style={styles.icon}
+            testID={`icon-update-comment-${comment.id}`}
+            onPress={handleUpdateComment}>
             <MaterialCommunityIcons
               name="cloud-check"
               color={'#1b494a'}
@@ -68,10 +62,16 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
       ) : (
         <View style={styles.editCommentContainer}>
           <Text style={styles.comment}>{comment.content}</Text>
-          <Pressable style={styles.icon} onPress={toggleEdit}>
+          <Pressable
+            style={styles.icon}
+            testID={`icon-edit-comment-${comment.id}`}
+            onPress={toggleEdit}>
             <MaterialCommunityIcons name="pencil" color={'#1b494a'} size={20} />
           </Pressable>
-          <Pressable style={styles.icon} onPress={deleteComment}>
+          <Pressable
+            style={styles.icon}
+            testID={`icon-delete-comment-${comment.id}`}
+            onPress={deleteComment}>
             <MaterialCommunityIcons name="delete" color={'#940005'} size={20} />
           </Pressable>
         </View>
@@ -79,6 +79,7 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     minHeight: 100,
@@ -91,21 +92,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  smallText: {
-    marginTop: 5,
-    fontSize: 15,
-    color: 'black',
-  },
-  bigText: {
-    fontSize: 20,
-    color: 'black',
-  },
-  editPostInput: {
-    fontSize: 20,
-    color: 'black',
-    backgroundColor: 'white',
-    borderColor: 'black',
-  },
   btnContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -116,30 +102,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
     display: 'flex',
     alignItems: 'center',
-  },
-  editOptionsContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  formLabel: {
-    color: '#000000',
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  checkboxContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  saveLabel: {
-    fontSize: 15,
-    color: '#1b494a',
-  },
-  cancelLabel: {
-    fontSize: 15,
-    color: '#6e1701',
   },
   editCommentContainer: {
     display: 'flex',
