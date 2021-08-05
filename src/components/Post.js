@@ -33,6 +33,13 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
           </Text>
           )
         </Text>
+        <Text style={styles.smallText}>
+          Editors (
+          <Text testID={`comment-count-${post.id}`}>
+            {post.editors ? post.editors.length : '0'}
+          </Text>
+          )
+        </Text>
         <View style={styles.btnContainer}>
           <Button
             title={'View post'}

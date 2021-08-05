@@ -10,7 +10,7 @@ import {
 import PostComponent from '../components/Post';
 
 import {DataStore} from 'aws-amplify';
-import {Post, Comment} from '../models';
+import {Post, Comment, PostEditor} from '../models';
 
 const PostsScreen = ({navigation}) => {
   const [posts, updatePosts] = useState([]);
@@ -51,11 +51,13 @@ const PostsScreen = ({navigation}) => {
           const comments = (await DataStore.query(Comment)).filter(
             c => c.post.id === id,
           );
-          return {...post, comments};
+          const editors = (await DataStore.query(PostEditor)).filter(
+            c => c.post.id === id,
+          );
+          return {...post, comments, editors};
         }),
       ).then(syncedPosts => {
         // update state w/ the newest post first
-        // TODO: should do this in the query
         updatePosts(syncedPosts.reverse());
       });
     } catch (err) {
