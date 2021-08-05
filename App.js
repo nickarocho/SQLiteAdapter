@@ -39,12 +39,12 @@ const navigator = createStackNavigator(
   },
 );
 
-export default function App() {
-  return (
-    <NavigationContainer>
-      <NavigationTabs />
-    </NavigationContainer>
-  );
-}
+// export default function App() {
+//   return (
+//     <NavigationContainer>
+//       <NavigationTabs />
+//     </NavigationContainer>
+//   );
+// }
 
-// export default createAppContainer(navigator);
+export default createAppContainer(navigator);

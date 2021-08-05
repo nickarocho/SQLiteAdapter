@@ -24,16 +24,25 @@ const PostsScreen = ({navigation}) => {
         console.error('Error fetching posts: ', err);
       }
     });
+    const commentSubscription = DataStore.observe(Comment).subscribe(
+      async () => {
+        try {
+          fetchPosts();
+        } catch (err) {
+          console.error('Error fetching posts: ', err);
+        }
+      },
+    );
 
     return () => {
       postSubscription.unsubscribe();
+      commentSubscription.unsubscribe();
     };
   }, []);
 
   const fetchPosts = async () => {
     try {
       const allPosts = await DataStore.query(Post);
-      console.log({allPosts});
 
       // merge Post model with Comment model
       Promise.all(
