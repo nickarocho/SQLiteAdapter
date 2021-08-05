@@ -1,6 +1,5 @@
 import * as React from 'react';
-import Amplify, {Auth} from 'aws-amplify';
-import {withAuthenticator} from 'aws-amplify-react-native';
+import Amplify from 'aws-amplify';
 import awsconfig from './src/aws-exports.js';
 
 import {createAppContainer} from 'react-navigation';
@@ -14,15 +13,14 @@ import NewPostScreen from './src/screens/NewPostScreen';
 import ViewPostScreen from './src/screens/ViewPostScreen.js';
 import UsersScreen from './src/screens/UsersScreen';
 import NewUserScreen from './src/screens/NewUserScreen';
-import ViewProfileScreen from './src/screens/ViewProfileScreen.js';
 import Authenticator from './src/screens/Authenticator.js';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 Amplify.configure(awsconfig);
 
+// TODO: create tabs or a side drawer nav menu
 const Tab = createBottomTabNavigator();
-
 const Tabs = () => {
   return (
     <NavigationContainer>
@@ -80,7 +78,7 @@ const navigator = createStackNavigator(
     Post: ViewPostScreen,
     Users: UsersScreen,
     NewUser: NewUserScreen,
-    Profile: ViewProfileScreen,
+    Auth: Authenticator,
   },
   {
     initialRouteName: 'Home',

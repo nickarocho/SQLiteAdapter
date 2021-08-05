@@ -9,7 +9,6 @@ const UserComponent = ({user, navigation, fetchUsers}) => {
     try {
       const thisUser = await DataStore.query(User, user.id);
       DataStore.delete(thisUser);
-      console.log('Successfully deleted user:', thisUser);
       fetchUsers();
     } catch (err) {
       console.error('something went wrong with handleDelete:', err);

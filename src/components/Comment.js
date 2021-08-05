@@ -30,7 +30,6 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
     try {
       const thisComment = await DataStore.query(Comment, comment.id);
       DataStore.delete(thisComment);
-      console.log('Successfully deleted comment:', thisComment);
       fetchComments();
     } catch (err) {
       console.error('something went wrong with handleDelete:', err);
@@ -39,7 +38,6 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
 
   return (
     <View>
-      {/* TODO: abstract comment to own component to fix toggle issue */}
       {isEditing ? (
         <View style={styles.editCommentContainer}>
           <TextInput
@@ -60,6 +58,7 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
           </Pressable>
         </View>
       ) : (
+        // Default view - not editing
         <View style={styles.editCommentContainer}>
           <Text style={styles.comment}>{comment.content}</Text>
           <Pressable
@@ -91,12 +90,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     padding: 20,
-  },
-  btnContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 20,
   },
   icon: {
     marginRight: 10,

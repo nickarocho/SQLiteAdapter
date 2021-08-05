@@ -14,6 +14,7 @@ import {User, Profile} from '../models';
 
 const UsersScreen = ({navigation}) => {
   const [users, updateUsers] = useState([]);
+
   useEffect(() => {
     fetchUsers();
     const userSubscription = DataStore.observe(User).subscribe(async () => {

@@ -64,6 +64,7 @@ const ViewProfileScreen = ({navigation}) => {
           ...updated,
         });
       });
+
       const originalProfile = await DataStore.query(Profile, user.profile.id);
       await DataStore.save(
         Profile.copyOf(originalProfile, updated => {
@@ -92,9 +93,9 @@ const ViewProfileScreen = ({navigation}) => {
         testID="navigate-back-all-users"
         onPress={() => navigation.navigate('Users')}>
         <MaterialCommunityIcons name="arrow-left" size={20} />
-
         <Text style={styles.back}>All users</Text>
       </Pressable>
+
       <Text style={styles.editProfileLabel}>Edit Profile</Text>
       <Switch
         testID={`switch-toggle-edit-user-profile-${user.id}`}
@@ -104,6 +105,7 @@ const ViewProfileScreen = ({navigation}) => {
         onValueChange={toggleEditProfileSwitch}
         value={isEditing}
       />
+
       {isEditing ? (
         <View style={styles.profileContainer}>
           <Text style={styles.listLabel}>Username</Text>
@@ -152,6 +154,7 @@ const ViewProfileScreen = ({navigation}) => {
           />
         </View>
       ) : (
+        // Default view - not editing
         <View style={styles.profileContainer}>
           <Text style={styles.listLabel}>Username</Text>
           <Text style={styles.bigText}>{editedUser.username}</Text>
@@ -174,8 +177,8 @@ const ViewProfileScreen = ({navigation}) => {
 
         {/* <Text style={styles.commentLabel}>
           Posts ({editedUser.posts.length})
-        </Text> */}
-        {/* <FlatList
+        </Text>
+        <FlatList
           keyExtractor={comment => comment.id}
           data={editedProfile.comments}
           renderItem={({item}) => {

@@ -31,7 +31,7 @@ const NewUserScreen = ({navigation}) => {
         new User({...newUser, profile: savedProfile}),
       );
     } catch (err) {
-      console.error(err);
+      console.error('Something went wrong with handleCreateUser', err);
     }
     navigation.navigate('Users');
   };
@@ -39,14 +39,17 @@ const NewUserScreen = ({navigation}) => {
   const handleEditUser = val => {
     setNewUser(val);
   };
+
   const handleEditProfile = val => {
     setNewProfile(val);
   };
+
   return (
     <ScrollView>
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>🖋 Create a New User</Text>
       </View>
+
       <View style={styles.newUserContainer}>
         <Text style={styles.formLabel}>Username</Text>
         <TextInput
@@ -55,6 +58,7 @@ const NewUserScreen = ({navigation}) => {
           value={newUser.username}
           placeholder="joeshmoe"
         />
+
         <Text style={styles.formLabel}>First name</Text>
         <TextInput
           style={styles.input}
@@ -64,6 +68,7 @@ const NewUserScreen = ({navigation}) => {
           value={newProfile.firstName}
           placeholder="Joe"
         />
+
         <Text style={styles.formLabel}>Last name</Text>
         <TextInput
           style={styles.input}
@@ -73,6 +78,7 @@ const NewUserScreen = ({navigation}) => {
           value={newProfile.lastName}
           placeholder="Shmoe"
         />
+
         <Text style={styles.formLabel}>Avatar URL</Text>
         <TextInput
           style={styles.input}
@@ -85,6 +91,7 @@ const NewUserScreen = ({navigation}) => {
           value={newProfile.avatar.url}
           placeholder="https://github.com/aws-amplify/amplify-js"
         />
+
         <Text style={styles.formLabel}>Avatar Label</Text>
         <TextInput
           style={styles.input}
@@ -98,6 +105,7 @@ const NewUserScreen = ({navigation}) => {
           placeholder="Headshot"
         />
       </View>
+
       <Button
         onPress={handleCreateUser}
         testID="btn-create-user"

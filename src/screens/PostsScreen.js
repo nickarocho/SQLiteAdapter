@@ -25,19 +25,8 @@ const PostsScreen = ({navigation}) => {
       }
     });
 
-    // TODO: get comment count updates... this isn't working
-    // const commentSubscription = DataStore.observe(Comment).subscribe(
-    //   async () => {
-    //     try {
-    //       alert('newComment!');
-    //     } catch (err) {
-    //       console.log(err);
-    //     }
-    //   },
-    // );
     return () => {
       postSubscription.unsubscribe();
-      // commentSubscription.unsubscribe();
     };
   }, []);
 
@@ -56,8 +45,8 @@ const PostsScreen = ({navigation}) => {
           return {...post, comments};
         }),
       ).then(syncedPosts => {
-        // store the merged data in state
-        // getting the newest post first... TODO: should do this in the query
+        // update state w/ the newest post first
+        // TODO: should do this in the query
         updatePosts(syncedPosts.reverse());
       });
     } catch (err) {

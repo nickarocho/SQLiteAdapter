@@ -9,12 +9,12 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
     try {
       const thisPost = await DataStore.query(Post, post.id);
       DataStore.delete(thisPost);
-      console.log(`Successfully deleted post:`, thisPost);
       fetchPosts();
     } catch (err) {
       console.error('something went wrong with handleDelete:', err);
     }
   }
+
   return (
     <Pressable
       style={styles.container}
@@ -33,7 +33,6 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
           </Text>
           )
         </Text>
-        {/* TODO: wrap with conditional for isAuthor's post */}
         <View style={styles.btnContainer}>
           <Button
             title={'View post'}

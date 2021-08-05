@@ -62,11 +62,9 @@ const ViewPostScreen = ({navigation}) => {
     }
     try {
       const originalPost = await DataStore.query(Post, id);
-      console.log({editors, editorModels});
       await DataStore.save(
         Post.copyOf(originalPost, updated => {
           Object.assign(updated, editedPost);
-          Object.assign((updated.editors = editorModels));
         }),
       ).then(updated => {
         setEditedPost({
@@ -101,6 +99,8 @@ const ViewPostScreen = ({navigation}) => {
         c => c.post.id === post.id,
       );
       setEditedPost({...post, comments: allComments});
+
+      // clear the input field
       setNewComment('');
     } catch (err) {
       console.error('something went wrong with fetchComments:', err);
@@ -125,20 +125,20 @@ const ViewPostScreen = ({navigation}) => {
         editor: newEditor,
       }),
     );
-    console.log({newEditorModel});
     return newEditorModel;
   };
 
   const fetchEditors = useCallback(async () => {
     try {
-      console.log({post});
       const thisPostEditorsModels = (await DataStore.query(PostEditor))
         .filter(pe => {
           if (!pe.post) return null;
           return pe.post.id === post.id;
         })
         .map(pe => pe.editor);
+
       sedEditorModels(thisPostEditorsModels);
+
       const editorsMap = await createEditorsMap(thisPostEditorsModels);
       setEditors(editorsMap);
     } catch (err) {
@@ -257,6 +257,8 @@ const ViewPostScreen = ({navigation}) => {
                           : editor,
                       );
 
+                      setEditors(updatedEditors);
+
                       try {
                         let editorModel = (
                           await DataStore.query(PostEditor)
@@ -264,17 +266,32 @@ const ViewPostScreen = ({navigation}) => {
                           if (!pe.editor) return null;
                           return pe.editor.id === item.id;
                         });
+                        let editorModelNext = editorModel.map(p => p.editor);
+
+                        console.log({editorModel, editorModelNext});
                         if (editorModel.length === 0) {
                           editorModel = await createPostEditor(item);
-                          console.log({editorModels});
-
-                          // update the stored models to persist copyOf update on saving edits
                           // TODO: remove selected model if 'newValue' === false
-                          sedEditorModels(...editorModels, editorModel);
-
-                          // console.log({item, editorModel, updatedEditors});
-                          setEditors(updatedEditors);
                         }
+                        const originalPost = await DataStore.query(
+                          Post,
+                          post.id,
+                        );
+                        console.log({editorModels, editorModel, originalPost});
+
+                        await DataStore.save(
+                          Post.copyOf(originalPost, updated => {
+                            updated.editors = [...editorModels, ...editorModel];
+                          }),
+                        ).then(updated => {
+                          console.log({updated});
+                        });
+                        // update the stored models to persist copyOf update on saving edits
+                        // sedEditorModels([...editorModels, editorModel]);
+                        // setEditedPost({
+                        //   ...editedPost,
+                        //   editors: [...editorModels, editorModel],
+                        // });
                       } catch (err) {
                         console.error(
                           'Something went wrong querying/creating PostEditor',
@@ -290,6 +307,7 @@ const ViewPostScreen = ({navigation}) => {
           />
         </View>
       ) : (
+        // Default view - not editing
         <View style={styles.newPostContainer}>
           <Text style={styles.listLabel}>Post title</Text>
           <Text style={styles.bigText}>{editedPost.title}</Text>
@@ -342,6 +360,7 @@ const ViewPostScreen = ({navigation}) => {
         />
       </View>
 
+      {/* new comment input */}
       <View style={styles.editCommentContainer}>
         <TextInput
           value={newComment}

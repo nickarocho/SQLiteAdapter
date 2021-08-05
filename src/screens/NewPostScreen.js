@@ -28,7 +28,6 @@ const NewPostScreen = ({navigation}) => {
   const fetchUsers = useCallback(async () => {
     try {
       const allUsers = await DataStore.query(User);
-      // TODO: make this better...
       const editorsMap = allUsers.map(u => {
         return {
           id: u.id,
