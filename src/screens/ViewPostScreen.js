@@ -23,7 +23,7 @@ const ViewPostScreen = ({navigation}) => {
   const [newComment, setNewComment] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editors, setEditors] = useState([]);
-  const [editorModels, sedEditorModels] = useState([]);
+  const [editorModels, setEditorModels] = useState([]);
   const [cachedPostEditorUsernames, setCachedPostEditorUsernames] = useState(
     [],
   );
@@ -113,7 +113,11 @@ const ViewPostScreen = ({navigation}) => {
   }, [post]);
 
   const createEditorsMap = async postEditorModels => {
-    const editorIds = postEditorModels.map(e => e.id);
+    const editorIds = postEditorModels.map(e => {
+      if (!e.editor) return null;
+      return e.editor.id;
+    });
+
     const allUsers = await DataStore.query(User);
     return allUsers.map(user => {
       return {
@@ -130,6 +134,7 @@ const ViewPostScreen = ({navigation}) => {
         editor: newEditor,
       }),
     );
+    console.log('Successfully created new postEditor: ', newEditorModel);
     return newEditorModel;
   };
 
@@ -150,16 +155,19 @@ const ViewPostScreen = ({navigation}) => {
       }
     });
 
-    const deSelectedEditors = editors.filter(e => !e.assigned);
     // 6. if NOT currently checked WAS in 'cached' checked, delete the PostEditor
+    // TODO: PROBLEM deleting a PostEditor deletes the entire user
+    const deSelectedEditors = editors.filter(e => !e.assigned);
     deSelectedEditors.forEach(async editor => {
       if (cachedPostEditorUsernames.indexOf(editor.username) > -1) {
         try {
           if (!editor.id)
             throw new Error('No editorId found on mapped PostEditor model');
-          const thisPostEditor = editorModels.find(e => e.id === editor.id);
+          const thisPostEditor = editorModels.find(em => {
+            return em.editor.id === editor.id;
+          });
           DataStore.delete(thisPostEditor);
-          await DataStore.delete();
+          console.log('Successfully deleted postEditor: ', thisPostEditor);
         } catch (err) {
           console.error('something went wrong deleting a postEditor', err);
         }
@@ -171,17 +179,18 @@ const ViewPostScreen = ({navigation}) => {
 
   const fetchEditors = useCallback(async () => {
     try {
-      const thisPostEditorsModels = (await DataStore.query(PostEditor))
-        .filter(pe => {
+      const thisPostEditorsModels = (await DataStore.query(PostEditor)).filter(
+        pe => {
           if (!pe.post) return null;
           return pe.post.id === post.id;
-        })
-        .map(pe => pe.editor);
-      const postEditorUsernameArray = thisPostEditorsModels.map(
-        e => e.username,
+        },
       );
 
-      sedEditorModels(thisPostEditorsModels);
+      const postEditorUsernameArray = thisPostEditorsModels.map(
+        e => e.editor.username,
+      );
+
+      setEditorModels([...thisPostEditorsModels]);
       setCachedPostEditorUsernames(postEditorUsernameArray);
 
       const editorsMap = await createEditorsMap(thisPostEditorsModels);
