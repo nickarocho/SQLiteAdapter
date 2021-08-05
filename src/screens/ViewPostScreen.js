@@ -24,6 +24,9 @@ const ViewPostScreen = ({navigation}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editors, setEditors] = useState([]);
   const [editorModels, sedEditorModels] = useState([]);
+  const [cachedPostEditorUsernames, setCachedPostEditorUsernames] = useState(
+    [],
+  );
 
   const toggleEditPostSwitch = () => {
     if (isEditing) {
@@ -62,6 +65,8 @@ const ViewPostScreen = ({navigation}) => {
     }
     try {
       const originalPost = await DataStore.query(Post, id);
+      const updatedPostEditors = await updatePostEditors();
+
       await DataStore.save(
         Post.copyOf(originalPost, updated => {
           Object.assign(updated, editedPost);
@@ -119,7 +124,6 @@ const ViewPostScreen = ({navigation}) => {
   };
 
   const createPostEditor = async newEditor => {
-    console.log({newEditor});
     const newEditorModel = await DataStore.save(
       new PostEditor({
         post: post,
@@ -127,6 +131,42 @@ const ViewPostScreen = ({navigation}) => {
       }),
     );
     return newEditorModel;
+  };
+
+  const updatePostEditors = () => {
+    // 1. cache all the PostEditors on first load via user ID/username
+    // 2. toggle via checkbox - done via checkbox callback fn
+    // 3. when ready to save, compare currently checked with 'cached checked'
+    const selectedEditors = editors.filter(e => e.assigned);
+    selectedEditors.forEach(async editor => {
+      // 4. if currently checked was already in 'cached checked', do nothing
+      // 5. if currently check was not already in 'cached checked', create a new PostEditor
+      if (cachedPostEditorUsernames.indexOf(editor.username) < 0) {
+        try {
+          await createPostEditor(editor);
+        } catch (err) {
+          console.error('something went wrong creating a new posteEditor', err);
+        }
+      }
+    });
+
+    const deSelectedEditors = editors.filter(e => !e.assigned);
+    // 6. if NOT currently checked WAS in 'cached' checked, delete the PostEditor
+    deSelectedEditors.forEach(async editor => {
+      if (cachedPostEditorUsernames.indexOf(editor.username) > -1) {
+        try {
+          if (!editor.id)
+            throw new Error('No editorId found on mapped PostEditor model');
+          const thisPostEditor = editorModels.find(e => e.id === editor.id);
+          DataStore.delete(thisPostEditor);
+          await DataStore.delete();
+        } catch (err) {
+          console.error('something went wrong deleting a postEditor', err);
+        }
+      }
+    });
+
+    fetchEditors();
   };
 
   const fetchEditors = useCallback(async () => {
@@ -137,8 +177,12 @@ const ViewPostScreen = ({navigation}) => {
           return pe.post.id === post.id;
         })
         .map(pe => pe.editor);
+      const postEditorUsernameArray = thisPostEditorsModels.map(
+        e => e.username,
+      );
 
       sedEditorModels(thisPostEditorsModels);
+      setCachedPostEditorUsernames(postEditorUsernameArray);
 
       const editorsMap = await createEditorsMap(thisPostEditorsModels);
       setEditors(editorsMap);
@@ -259,46 +303,6 @@ const ViewPostScreen = ({navigation}) => {
                       );
 
                       setEditors(updatedEditors);
-
-                      try {
-                        let editorModel = (
-                          await DataStore.query(PostEditor)
-                        ).filter(pe => {
-                          if (!pe.editor) return null;
-                          return pe.editor.id === item.id;
-                        });
-                        let editorModelNext = editorModel.map(p => p.editor);
-
-                        console.log({editorModel, editorModelNext});
-                        if (editorModel.length === 0) {
-                          editorModel = await createPostEditor(item);
-                          // TODO: remove selected model if 'newValue' === false
-                        }
-                        const originalPost = await DataStore.query(
-                          Post,
-                          post.id,
-                        );
-                        console.log({editorModels, editorModel, originalPost});
-
-                        await DataStore.save(
-                          Post.copyOf(originalPost, updated => {
-                            updated.editors = [...editorModels, ...editorModel];
-                          }),
-                        ).then(updated => {
-                          console.log({updated});
-                        });
-                        // update the stored models to persist copyOf update on saving edits
-                        // sedEditorModels([...editorModels, editorModel]);
-                        // setEditedPost({
-                        //   ...editedPost,
-                        //   editors: [...editorModels, editorModel],
-                        // });
-                      } catch (err) {
-                        console.error(
-                          'Something went wrong querying/creating PostEditor',
-                          err,
-                        );
-                      }
                     }}
                   />
                   <Text>{item.username}</Text>

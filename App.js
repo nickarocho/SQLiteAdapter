@@ -129,6 +129,7 @@ const navigator = createStackNavigator(
     Post: ViewPostScreen,
     Users: UsersScreen,
     NewUser: NewUserScreen,
+    PostEditors: PostEditorsScreen,
     Auth: AuthScreen,
   },
   {
