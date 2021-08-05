@@ -119,6 +119,7 @@ const ViewPostScreen = ({navigation}) => {
   };
 
   const createPostEditor = async newEditor => {
+    console.log({newEditor});
     const newEditorModel = await DataStore.save(
       new PostEditor({
         post: post,

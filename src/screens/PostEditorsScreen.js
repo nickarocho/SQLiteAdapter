@@ -7,70 +7,61 @@ import {
   Button,
   ScrollView,
 } from 'react-native';
-import UserComponent from '../components/User';
+import PostEditorComponent from '../components/PostEditor';
 
 import {DataStore} from 'aws-amplify';
-import {User, Profile} from '../models';
+import {PostEditor} from '../models';
 
-const UsersScreen = ({navigation}) => {
-  const [users, updateUsers] = useState([]);
+const PostEditorsScreen = ({navigation}) => {
+  const [postEditors, updatePostEditors] = useState([]);
 
   useEffect(() => {
-    fetchUsers();
-    const userSubscription = DataStore.observe(User).subscribe(async () => {
-      try {
-        fetchUsers();
-      } catch (err) {
-        console.error('Error fetching posts: ', err);
-      }
-    });
-    const profileSubscription = DataStore.observe(Profile).subscribe(
+    fetchPostEditors();
+    const postEditorSubscription = DataStore.observe(PostEditor).subscribe(
       async () => {
         try {
-          fetchUsers();
+          fetchPostEditors();
         } catch (err) {
           console.error('Error fetching posts: ', err);
         }
       },
     );
     return () => {
-      userSubscription.unsubscribe();
-      profileSubscription.unsubscribe();
+      postEditorSubscription.unsubscribe();
     };
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchPostEditors = async () => {
     try {
-      const allUsers = await DataStore.query(User);
-      console.log({allUsers});
-      updateUsers(allUsers.reverse());
+      const allPostEditors = await DataStore.query(PostEditor);
+      console.log({allPostEditors});
+      updatePostEditors(allPostEditors);
     } catch (err) {
-      console.error('something went wrong with fetchUsers:', err);
+      console.error('something went wrong with fetchPostEditors:', err);
     }
   };
 
   return (
     <ScrollView>
       <View style={styles.headingContainer}>
-        <Text style={styles.heading}>Users ({users.length})</Text>
+        <Text style={styles.heading}>Post Editors ({postEditors.length})</Text>
         <Button
           style={styles.addPostBtn}
-          onPress={() => navigation.navigate('NewUser')}
-          title="✚ New User"
+          onPress={() => navigation.navigate('Users')}
+          title="View All Users"
           testID="btn-navigate-new-user"
           color="black"
         />
       </View>
       <FlatList
-        keyExtractor={user => user.id}
-        data={users}
+        keyExtractor={pe => pe.id}
+        data={postEditors}
         renderItem={({item}) => {
           return (
-            <UserComponent
-              user={{...item}}
-              style={styles.textStyle}
+            <PostEditorComponent
               navigation={navigation}
-              fetchUsers={fetchUsers}
+              fetchPostEditors={fetchPostEditors}
+              editorModel={{...item}}
             />
           );
         }}
@@ -106,4 +97,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UsersScreen;
+export default PostEditorsScreen;

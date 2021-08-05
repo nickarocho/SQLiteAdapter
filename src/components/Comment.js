@@ -5,7 +5,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {Comment} from '../models';
 import {DataStore} from 'aws-amplify';
 
-const CommentComponent = ({comment, navigation, fetchComments}) => {
+const CommentComponent = ({comment, fetchComments}) => {
   const [editComment, setEditComment] = useState(comment.content);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -26,7 +26,7 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
     }
   };
 
-  const deleteComment = async () => {
+  const handleDeleteComment = async () => {
     try {
       const thisComment = await DataStore.query(Comment, comment.id);
       DataStore.delete(thisComment);
@@ -70,7 +70,7 @@ const CommentComponent = ({comment, navigation, fetchComments}) => {
           <Pressable
             style={styles.icon}
             testID={`icon-delete-comment-${comment.id}`}
-            onPress={deleteComment}>
+            onPress={handleDeleteComment}>
             <MaterialCommunityIcons name="delete" color={'#940005'} size={20} />
           </Pressable>
         </View>

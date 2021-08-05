@@ -67,7 +67,7 @@ const NewPostScreen = ({navigation}) => {
     return result;
   };
 
-  async function createPost() {
+  const createPost = async () => {
     if (!newPost.title) return;
     try {
       const post = await DataStore.save(
@@ -84,7 +84,7 @@ const NewPostScreen = ({navigation}) => {
     } catch (err) {
       console.error('something went wrong with createPost:', err);
     }
-  }
+  };
 
   return (
     <ScrollView>

@@ -5,13 +5,13 @@ import {DataStore} from 'aws-amplify';
 import {User} from '../models';
 
 const UserComponent = ({user, navigation, fetchUsers}) => {
-  const handleDelete = async () => {
+  const handleDeleteUser = async () => {
     try {
       const thisUser = await DataStore.query(User, user.id);
       DataStore.delete(thisUser);
       fetchUsers();
     } catch (err) {
-      console.error('something went wrong with handleDelete:', err);
+      console.error('something went wrong with handleDeleteUser:', err);
     }
   };
 
@@ -41,7 +41,7 @@ const UserComponent = ({user, navigation, fetchUsers}) => {
             title={'Delete user'}
             color="#940005"
             testID={`btn-delete-user-${user.id}`}
-            onPress={handleDelete}
+            onPress={handleDeleteUser}
           />
         </View>
       </View>

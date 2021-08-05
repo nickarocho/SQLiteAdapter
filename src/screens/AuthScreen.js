@@ -1,15 +1,16 @@
-import React from 'react';
-import {View, Text} from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet} from 'react-native';
 import {Authenticator} from 'aws-amplify-react-native';
-import awsconfig from '../../src/aws-exports';
+import awsconfig from '../aws-exports';
 
-const Authenticator = ({navigation}) => {
+const AuthScreen = () => {
+  const [cognitoUser, setCognitoUser] = useState([]);
   return (
     <Authenticator
       // Optionally hard-code an initial state
       authState="signIn"
       // Pass in an already authenticated CognitoUser or FederatedUser object
-      authData={CognitoUser | 'username'}
+      authData={cognitoUser}
       // Fired when Authentication State changes
       onStateChange={authState => console.log(authState)}
       // Pass in an aws-exports configuration
@@ -17,7 +18,7 @@ const Authenticator = ({navigation}) => {
       // Default components can be customized/passed in as child components.
       // Define them here if you used hideDefault={true}
     >
-      <Greetings />
+      {/* <Greetings />
       <SignIn federated={myFederatedConfig} />
       <ConfirmSignIn />
       <RequireNewPassword />
@@ -26,11 +27,11 @@ const Authenticator = ({navigation}) => {
       <VerifyContact />
       <ForgotPassword />
       <TOTPSetup />
-      <Loading />
+      <Loading /> */}
     </Authenticator>
   );
 };
 
 const styles = StyleSheet.create({});
 
-export default Authenticator;
+export default AuthScreen;

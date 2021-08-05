@@ -1,11 +1,17 @@
 import * as React from 'react';
+import {View, Text} from 'react-native';
 import Amplify from 'aws-amplify';
 import awsconfig from './src/aws-exports.js';
 
-import {createAppContainer} from 'react-navigation';
+// import {NavigationContainer} from '@react-navigation/native';
+// import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+//Import React Navigation
 import {NavigationContainer} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createStackNavigator} from 'react-navigation-stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
+import {createAppContainer} from 'react-navigation';
 
 import HomeScreen from './src/screens/HomeScreen';
 import PostsScreen from './src/screens/PostsScreen';
@@ -13,62 +19,107 @@ import NewPostScreen from './src/screens/NewPostScreen';
 import ViewPostScreen from './src/screens/ViewPostScreen.js';
 import UsersScreen from './src/screens/UsersScreen';
 import NewUserScreen from './src/screens/NewUserScreen';
-import Authenticator from './src/screens/Authenticator.js';
+import PostEditorsScreen from './src/screens/PostEditorsScreen';
+import AuthScreen from './src/screens/AuthScreen.js';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 Amplify.configure(awsconfig);
 
-// TODO: create tabs or a side drawer nav menu
 const Tab = createBottomTabNavigator();
-const Tabs = () => {
+function NavigationTabs() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({color, size}) => (
-              <MaterialCommunityIcons name="home" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Posts"
-          component={PostsScreen}
-          options={{
-            tabBarIcon: ({color, size}) => (
-              <MaterialCommunityIcons name="apps" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="New Post"
-          component={NewPostScreen}
-          options={{
-            tabBarIcon: ({color, size}) => (
-              <MaterialCommunityIcons
-                name="plus-circle"
-                color={color}
-                size={size}
-              />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Post"
-          component={ViewPostScreen}
-          options={{
-            tabBarIcon: ({color, size}) => (
-              <MaterialCommunityIcons name="post" color={color} size={size} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="home" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Posts"
+        component={PostsScreen}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons
+              name="layers-triple"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="New Post"
+        component={NewPostScreen}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons
+              name="playlist-plus"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Users"
+        component={UsersScreen}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons
+              name="account-group"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="New User"
+        component={NewUserScreen}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons
+              name="account-plus"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Post Editors"
+        component={PostEditorsScreen}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons
+              name="account-edit"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
-};
+}
+
+const RootStack = createNativeStackNavigator();
+
+// export default function App() {
+//   return (
+//     <NavigationContainer>
+//       <RootStack.Navigator>
+//         <RootStack.Screen name="Home" component={NavigationTabs} />
+//         <RootStack.Screen name="Post" component={ViewPostScreen} />
+//       </RootStack.Navigator>
+//     </NavigationContainer>
+//   );
+// }
 
 const navigator = createStackNavigator(
   {
@@ -78,16 +129,10 @@ const navigator = createStackNavigator(
     Post: ViewPostScreen,
     Users: UsersScreen,
     NewUser: NewUserScreen,
-    Auth: Authenticator,
+    Auth: AuthScreen,
   },
   {
     initialRouteName: 'Home',
   },
 );
-
-// export default withAuthenticator(createAppContainer(navigator), {
-//   // Render a sign out button once logged in
-//   includeGreetings: true,
-// });
-
 export default createAppContainer(navigator);

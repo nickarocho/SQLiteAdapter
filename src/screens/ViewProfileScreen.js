@@ -52,7 +52,7 @@ const ViewProfileScreen = ({navigation}) => {
     }
   };
 
-  async function handleUpdateProfile() {
+  const handleUpdateProfile = async () => {
     try {
       const originalUser = await DataStore.query(User, user.id);
       await DataStore.save(
@@ -80,7 +80,7 @@ const ViewProfileScreen = ({navigation}) => {
     } catch (err) {
       console.error('something went wrong with handleUpdateProfile', err);
     }
-  }
+  };
 
   const handleEdit = val => {
     setEditedProfile(val);

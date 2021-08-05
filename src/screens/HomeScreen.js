@@ -33,6 +33,13 @@ const HomeScreen = ({navigation}) => {
         style={styles.btn}
         testID="btn-navigate-new-user"
       />
+      <Button
+        onPress={() => navigation.navigate('PostEditors')}
+        title="Post Editors"
+        color="#000000"
+        style={styles.btn}
+        testID="btn-navigate-post-editors"
+      />
     </View>
   );
 };

@@ -5,15 +5,15 @@ import {DataStore} from 'aws-amplify';
 import {Post} from '../models';
 
 const PostComponent = ({post, navigation, fetchPosts}) => {
-  async function handleDelete() {
+  const handleDeletePost = async () => {
     try {
       const thisPost = await DataStore.query(Post, post.id);
       DataStore.delete(thisPost);
       fetchPosts();
     } catch (err) {
-      console.error('something went wrong with handleDelete:', err);
+      console.error('something went wrong with handleDeletePost:', err);
     }
-  }
+  };
 
   return (
     <Pressable
@@ -48,7 +48,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
             title={'Delete post'}
             testID={`btn-delete-post-${post.id}`}
             color="#940005"
-            onPress={handleDelete}
+            onPress={handleDeletePost}
           />
         </View>
       </View>
