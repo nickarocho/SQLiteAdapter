@@ -174,8 +174,6 @@ const ViewProfileScreen = ({navigation}) => {
         </View>
       )}
       <View style={styles.postsContainer}>
-        {/* TODO: Show user's posts */}
-
         <Text style={styles.commentLabel}>
           Posts ({editedUser.posts ? editedUser.posts.length : '0'})
         </Text>
