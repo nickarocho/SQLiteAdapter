@@ -156,7 +156,6 @@ const ViewPostScreen = ({navigation}) => {
     });
 
     // 6. if NOT currently checked WAS in 'cached' checked, delete the PostEditor
-    // TODO: PROBLEM deleting a PostEditor deletes the entire user
     const deSelectedEditors = editors.filter(e => !e.assigned);
     deSelectedEditors.forEach(async editor => {
       if (cachedPostEditorUsernames.indexOf(editor.username) > -1) {

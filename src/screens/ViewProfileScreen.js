@@ -8,6 +8,7 @@ import {
   Pressable,
   Switch,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -16,6 +17,7 @@ import {DataStore} from 'aws-amplify';
 
 const ViewProfileScreen = ({navigation}) => {
   const {user} = navigation.state.params;
+  console.log({user});
   const [editedUser, setEditedUser] = useState({...user});
   const [editedProfile, setEditedProfile] = useState({...user.profile});
   const [isEditing, setIsEditing] = useState(false);
@@ -174,23 +176,18 @@ const ViewProfileScreen = ({navigation}) => {
       <View style={styles.postsContainer}>
         {/* TODO: Show user's posts */}
 
-        {/* <Text style={styles.commentLabel}>
-          Posts ({editedUser.posts.length})
+        <Text style={styles.commentLabel}>
+          Posts ({editedUser.posts ? editedUser.posts.length : '0'})
         </Text>
-        <FlatList
-          keyExtractor={comment => comment.id}
-          data={editedProfile.comments}
-          renderItem={({item}) => {
-            return (
-              <CommentComponent
-                comment={item}
-                navigation={navigation}
-                style={styles.comment}
-                fetchComments={fetchComments}
-              />
-            );
-          }}
-        /> */}
+        {editedUser.posts && (
+          <SafeAreaView>
+            <ScrollView>
+              {editedUser.posts.map((item, index) => {
+                <Text>{item.title}</Text>;
+              })}
+            </ScrollView>
+          </SafeAreaView>
+        )}
       </View>
     </ScrollView>
   );
