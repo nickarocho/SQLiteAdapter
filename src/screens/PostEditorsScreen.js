@@ -3,9 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   Button,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import PostEditorComponent from '../components/PostEditor';
 
@@ -53,19 +53,20 @@ const PostEditorsScreen = ({navigation}) => {
           color="black"
         />
       </View>
-      <FlatList
-        keyExtractor={pe => pe.id}
-        data={postEditors}
-        renderItem={({item}) => {
-          return (
-            <PostEditorComponent
-              navigation={navigation}
-              fetchPostEditors={fetchPostEditors}
-              editorModel={{...item}}
-            />
-          );
-        }}
-      />
+      <SafeAreaView>
+        <ScrollView>
+          {postEditors.map((item, index) => {
+            return (
+              <PostEditorComponent
+                key={index}
+                navigation={navigation}
+                fetchPostEditors={fetchPostEditors}
+                editorModel={{...item}}
+              />
+            );
+          })}
+        </ScrollView>
+      </SafeAreaView>
     </ScrollView>
   );
 };

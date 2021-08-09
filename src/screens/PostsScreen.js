@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   Button,
   SafeAreaView,
 } from 'react-native';
@@ -66,7 +66,7 @@ const PostsScreen = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView>
+    <ScrollView>
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>
           Posts (<Text testID="post-count">{posts.length}</Text>)
@@ -79,21 +79,22 @@ const PostsScreen = ({navigation}) => {
           color="black"
         />
       </View>
-      <FlatList
-        keyExtractor={post => post.id}
-        data={posts}
-        renderItem={({item}) => {
-          return (
-            <PostComponent
-              post={{...item}}
-              style={styles.textStyle}
-              navigation={navigation}
-              fetchPosts={fetchPosts}
-            />
-          );
-        }}
-      />
-    </SafeAreaView>
+      <SafeAreaView>
+        <ScrollView>
+          {posts.map((item, index) => {
+            return (
+              <PostComponent
+                key={index}
+                post={{...item}}
+                style={styles.textStyle}
+                navigation={navigation}
+                fetchPosts={fetchPosts}
+              />
+            );
+          })}
+        </ScrollView>
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 

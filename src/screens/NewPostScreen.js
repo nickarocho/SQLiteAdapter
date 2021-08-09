@@ -7,7 +7,7 @@ import {
   ScrollView,
   Button,
   Switch,
-  FlatList,
+  SafeAreaView,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import {DataStore} from '@aws-amplify/datastore';
@@ -97,7 +97,7 @@ const NewPostScreen = ({navigation}) => {
         <TextInput
           style={styles.input}
           onChangeText={val => handleEdit({...newPost, title: val})}
-          value={newPost}
+          value={newPost.title}
           placeholder="Post title"
           multiline
           numberOfLines={4}
@@ -137,37 +137,37 @@ const NewPostScreen = ({navigation}) => {
         />
 
         <Text style={styles.formLabel}>Editors</Text>
-        <FlatList
-          keyExtractor={user => user.id}
-          data={editors}
-          renderItem={({item}) => {
-            return (
-              <View style={styles.checkboxContainer}>
-                <CheckBox
-                  disabled={false}
-                  style={styles.textStyle}
-                  value={item.assigned}
-                  onValueChange={newValue => {
-                    let updatedEditors = editors.map(editor =>
-                      editor.id === item.id
-                        ? {
-                            ...editor,
-                            assigned: newValue,
-                          }
-                        : editor,
-                    );
-                    setEditors(updatedEditors);
-                    handleEdit({
-                      ...newPost,
-                      editors: updatedEditors,
-                    });
-                  }}
-                />
-                <Text>{item.username}</Text>
-              </View>
-            );
-          }}
-        />
+        <SafeAreaView>
+          <ScrollView>
+            {editors.map((item, index) => {
+              return (
+                <View key={index} style={styles.checkboxContainer}>
+                  <CheckBox
+                    disabled={false}
+                    style={styles.textStyle}
+                    value={item.assigned}
+                    onValueChange={newValue => {
+                      let updatedEditors = editors.map(editor =>
+                        editor.id === item.id
+                          ? {
+                              ...editor,
+                              assigned: newValue,
+                            }
+                          : editor,
+                      );
+                      setEditors(updatedEditors);
+                      handleEdit({
+                        ...newPost,
+                        editors: updatedEditors,
+                      });
+                    }}
+                  />
+                  <Text>{item.username}</Text>
+                </View>
+              );
+            })}
+          </ScrollView>
+        </SafeAreaView>
       </View>
 
       <Button

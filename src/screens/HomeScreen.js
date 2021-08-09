@@ -40,6 +40,13 @@ const HomeScreen = ({navigation}) => {
         style={styles.btn}
         testID="btn-navigate-post-editors"
       />
+      <Button
+        onPress={() => navigation.navigate('Auth')}
+        title="Sign In"
+        color="#000000"
+        style={styles.btn}
+        testID="btn-navigate-post-editors"
+      />
     </View>
   );
 };

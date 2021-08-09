@@ -3,9 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   Button,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import UserComponent from '../components/User';
 
@@ -61,20 +61,21 @@ const UsersScreen = ({navigation}) => {
           color="black"
         />
       </View>
-      <FlatList
-        keyExtractor={user => user.id}
-        data={users}
-        renderItem={({item}) => {
-          return (
-            <UserComponent
-              user={{...item}}
-              style={styles.textStyle}
-              navigation={navigation}
-              fetchUsers={fetchUsers}
-            />
-          );
-        }}
-      />
+      <SafeAreaView>
+        <ScrollView>
+          {users.map((item, index) => {
+            return (
+              <UserComponent
+                key={index}
+                user={{...item}}
+                style={styles.textStyle}
+                navigation={navigation}
+                fetchUsers={fetchUsers}
+              />
+            );
+          })}
+        </ScrollView>
+      </SafeAreaView>
     </ScrollView>
   );
 };
