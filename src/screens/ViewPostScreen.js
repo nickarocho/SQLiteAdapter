@@ -17,8 +17,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {Post, Comment, PostEditor, User} from '../models';
 import {DataStore} from 'aws-amplify';
 
-const ViewPostScreen = ({navigation}) => {
-  const {post} = navigation.state.params;
+const ViewPostScreen = props => {
+  const {post} = props.route.params;
+  const {navigation} = props;
   const [editedPost, setEditedPost] = useState({...post});
   const [newComment, setNewComment] = useState('');
   const [isEditing, setIsEditing] = useState(false);

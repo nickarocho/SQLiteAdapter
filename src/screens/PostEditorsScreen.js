@@ -50,7 +50,7 @@ const PostEditorsScreen = ({navigation}) => {
           onPress={() => navigation.navigate('Users')}
           title="View All Users"
           testID="btn-navigate-new-user"
-          color="black"
+          color="#2b2b2b"
         />
       </View>
       <SafeAreaView>
@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#2b2b2b',
   },
   textStyle: {
     marginVertical: 50,
@@ -86,7 +85,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 25,
-    color: 'white',
+    color: 'black',
   },
   addPostBtn: {
     borderRadius: 500,

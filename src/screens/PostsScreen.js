@@ -69,14 +69,14 @@ const PostsScreen = ({navigation}) => {
     <ScrollView>
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>
-          Posts (<Text testID="post-count">{posts.length}</Text>)
+          All Posts (<Text testID="post-count">{posts.length}</Text>)
         </Text>
         <Button
           style={styles.addPostBtn}
           onPress={() => navigation.navigate('NewPost')}
           testID="btn-navigate-new-post"
           title="✚ New Post"
-          color="black"
+          color="#2b2b2b"
         />
       </View>
       <SafeAreaView>
@@ -105,7 +105,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#2b2b2b',
   },
   textStyle: {
     marginVertical: 50,
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 25,
-    color: 'white',
+    color: 'black',
   },
   addPostBtn: {
     borderRadius: 500,

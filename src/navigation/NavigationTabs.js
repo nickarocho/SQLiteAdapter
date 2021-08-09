@@ -1,7 +1,9 @@
 import * as React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
-import HomeScreen from '../screens/HomeScreen';
+import {StyleSheet} from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createStackNavigator} from '@react-navigation/stack';
+
 import PostsScreen from '../screens/PostsScreen';
 import NewPostScreen from '../screens/NewPostScreen';
 import ViewPostScreen from '../screens/ViewPostScreen.js';
@@ -13,22 +15,58 @@ import AuthScreen from '../screens/AuthScreen.js';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const PostsStack = createStackNavigator();
+const PostsStackScreen = () => {
+  return (
+    <PostsStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <PostsStack.Screen name="Posts" component={PostsScreen} />
+      <PostsStack.Screen name="Post" component={ViewPostScreen} />
+      <PostsStack.Screen name="NewPost" component={NewPostScreen} />
+    </PostsStack.Navigator>
+  );
+};
+
+const UsersStack = createStackNavigator();
+const UsersStackScreen = () => {
+  return (
+    <UsersStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <UsersStack.Screen name="Users" component={UsersScreen} />
+      <UsersStack.Screen name="Profile" component={ViewProfileScreen} />
+      <PostsStack.Screen name="NewUser" component={NewUserScreen} />
+    </UsersStack.Navigator>
+  );
+};
+
 const Tab = createBottomTabNavigator();
 const NavigationTabs = () => {
   return (
-    <Tab.Navigator>
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons name="home" color={color} size={26} />
-          ),
-        }}
-      />
+    <Tab.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2B2B2B',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+      tabBarOptions={{
+        back: '#fff',
+        activeTintColor: '#fff',
+        inactiveTintColor: '#e3e3e3',
+        activeBackgroundColor: '#0d0d0d',
+        inactiveBackgroundColor: '#2b2b2b',
+      }}>
       <Tab.Screen
         name="Posts"
-        component={PostsScreen}
+        component={PostsStackScreen}
+        testID={'tab-posts'}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons
@@ -40,21 +78,9 @@ const NavigationTabs = () => {
         }}
       />
       <Tab.Screen
-        name="New Post"
-        component={NewPostScreen}
-        options={{
-          tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons
-              name="playlist-plus"
-              color={color}
-              size={26}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Users"
-        component={UsersScreen}
+        component={UsersStackScreen}
+        testID={'tab-users'}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons
@@ -66,21 +92,9 @@ const NavigationTabs = () => {
         }}
       />
       <Tab.Screen
-        name="New User"
-        component={NewUserScreen}
-        options={{
-          tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons
-              name="account-plus"
-              color={color}
-              size={26}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Post Editors"
         component={PostEditorsScreen}
+        testID={'tab-post-editors'}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons
@@ -91,8 +105,24 @@ const NavigationTabs = () => {
           ),
         }}
       />
+      <Tab.Screen
+        name="Log In"
+        component={AuthScreen}
+        testID={'tab-login'}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="login" color={color} size={26} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: 'yellow',
+  },
+});
 
 export default NavigationTabs;

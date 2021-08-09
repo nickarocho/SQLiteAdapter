@@ -15,9 +15,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {User, Profile} from '../models';
 import {DataStore} from 'aws-amplify';
 
-const ViewProfileScreen = ({navigation}) => {
-  const {user} = navigation.state.params;
-  console.log({user});
+const ViewProfileScreen = props => {
+  console.log({props});
+  const {user} = props.route.params;
+  const {navigation} = props;
   const [editedUser, setEditedUser] = useState({...user});
   const [editedProfile, setEditedProfile] = useState({...user.profile});
   const [isEditing, setIsEditing] = useState(false);

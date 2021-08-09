@@ -43,7 +43,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
         <View style={styles.btnContainer}>
           <Button
             title={'View post'}
-            color="#000"
+            color="#2b2b2b"
             testID={`btn-view-post-${post.id}`}
             onPress={() => {
               navigation.navigate('Post', {

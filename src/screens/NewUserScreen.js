@@ -110,7 +110,7 @@ const NewUserScreen = ({navigation}) => {
         onPress={handleCreateUser}
         testID="btn-create-user"
         title="Create User"
-        color="#000000"
+        color="#2b2b2b"
       />
     </ScrollView>
   );
@@ -128,11 +128,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#2b2b2b',
   },
   heading: {
     fontSize: 25,
-    color: 'white',
+    color: 'black',
   },
   newUserContainer: {
     marginVertical: 10,

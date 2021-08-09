@@ -174,7 +174,7 @@ const NewPostScreen = ({navigation}) => {
         onPress={createPost}
         testID="btn-create-post"
         title="Create Post"
-        color="#000000"
+        color="#2b2b2b"
       />
     </ScrollView>
   );
@@ -187,11 +187,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#2b2b2b',
   },
   heading: {
     fontSize: 25,
-    color: 'white',
+    color: 'black',
   },
   newPostContainer: {
     marginVertical: 10,

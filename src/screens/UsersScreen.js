@@ -42,7 +42,6 @@ const UsersScreen = ({navigation}) => {
   const fetchUsers = async () => {
     try {
       const allUsers = await DataStore.query(User);
-      console.log({allUsers});
       updateUsers(allUsers.reverse());
     } catch (err) {
       console.error('something went wrong with fetchUsers:', err);
@@ -52,13 +51,13 @@ const UsersScreen = ({navigation}) => {
   return (
     <ScrollView>
       <View style={styles.headingContainer}>
-        <Text style={styles.heading}>Users ({users.length})</Text>
+        <Text style={styles.heading}>All Users ({users.length})</Text>
         <Button
           style={styles.addPostBtn}
           onPress={() => navigation.navigate('NewUser')}
           title="✚ New User"
           testID="btn-navigate-new-user"
-          color="black"
+          color="#2B2B2B"
         />
       </View>
       <SafeAreaView>
@@ -87,7 +86,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#2b2b2b',
   },
   textStyle: {
     marginVertical: 50,
@@ -95,7 +93,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 25,
-    color: 'white',
+    color: 'black',
   },
   addPostBtn: {
     borderRadius: 500,

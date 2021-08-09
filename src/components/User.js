@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet, Pressable, Button} from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {DataStore} from 'aws-amplify';
 import {User} from '../models';
@@ -25,11 +26,19 @@ const UserComponent = ({user, navigation, fetchUsers}) => {
         });
       }}>
       <View>
-        <Text style={styles.bigText}>{user.username}</Text>
+        <View style={styles.usernameContainer}>
+          <MaterialCommunityIcons
+            name="account-circle"
+            color={'#2b2b2b'}
+            size={26}
+            style={styles.userIcon}
+          />
+          <Text style={styles.bigText}>{user.username}</Text>
+        </View>
         <View style={styles.btnContainer}>
           <Button
             title={'View profile'}
-            color="#000"
+            color="#2B2B2B"
             testID={`btn-view-user-${user.id}`}
             onPress={() => {
               navigation.navigate('Profile', {
@@ -60,6 +69,14 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     padding: 20,
+  },
+  usernameContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  userIcon: {
+    marginRight: 5,
   },
   bigText: {
     fontSize: 20,
