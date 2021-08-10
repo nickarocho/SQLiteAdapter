@@ -22,7 +22,7 @@ const PostsStackScreen = () => {
       screenOptions={{
         headerShown: false,
       }}>
-      <PostsStack.Screen name="Posts" component={PostsScreen} />
+      <PostsStack.Screen name="PostsScreen" component={PostsScreen} />
       <PostsStack.Screen name="Post" component={ViewPostScreen} />
       <PostsStack.Screen name="NewPost" component={NewPostScreen} />
     </PostsStack.Navigator>
@@ -36,7 +36,7 @@ const UsersStackScreen = () => {
       screenOptions={{
         headerShown: false,
       }}>
-      <UsersStack.Screen name="Users" component={UsersScreen} />
+      <UsersStack.Screen name="UsersScreen" component={UsersScreen} />
       <UsersStack.Screen name="Profile" component={ViewProfileScreen} />
       <PostsStack.Screen name="NewUser" component={NewUserScreen} />
     </UsersStack.Navigator>
@@ -55,13 +55,16 @@ const NavigationTabs = () => {
         headerTitleStyle: {
           fontWeight: 'bold',
         },
-      }}
-      tabBarOptions={{
-        back: '#fff',
-        activeTintColor: '#fff',
-        inactiveTintColor: '#e3e3e3',
-        activeBackgroundColor: '#0d0d0d',
-        inactiveBackgroundColor: '#2b2b2b',
+        tabBarActiveTintColor: '#fff',
+        tabBarInactiveTintColor: '#e3e3e3',
+        tabBarActiveBackgroundColor: '#0d0d0d',
+        tabBarInactiveBackgroundColor: '#2b2b2b',
+        tabBarStyle: [
+          {
+            display: 'flex',
+          },
+          null,
+        ],
       }}>
       <Tab.Screen
         name="Posts"

@@ -233,7 +233,7 @@ const ViewPostScreen = props => {
         <Pressable
           style={styles.backContainer}
           testID="navigate-back-all-posts"
-          onPress={() => navigation.navigate('Posts')}>
+          onPress={() => navigation.navigate('PostsScreen')}>
           <MaterialCommunityIcons name="arrow-left" size={20} />
           <Text style={styles.back}>All posts</Text>
         </Pressable>

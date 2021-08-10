@@ -33,7 +33,7 @@ const NewUserScreen = ({navigation}) => {
     } catch (err) {
       console.error('Something went wrong with handleCreateUser', err);
     }
-    navigation.navigate('Users');
+    navigation.navigate('UsersScreen');
   };
 
   const handleEditUser = val => {

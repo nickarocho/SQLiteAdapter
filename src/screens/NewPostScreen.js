@@ -80,7 +80,7 @@ const NewPostScreen = ({navigation}) => {
         }),
       );
       const postEditors = await createPostEditors(post);
-      navigation.navigate('Posts');
+      navigation.navigate('PostsScreen');
     } catch (err) {
       console.error('something went wrong with createPost:', err);
     }
@@ -110,7 +110,7 @@ const NewPostScreen = ({navigation}) => {
             const parsedVal = parseInt(val);
             handleEdit({...newPost, views: parsedVal});
           }}
-          value={newPost}
+          value={JSON.stringify(newPost.views)}
           keyboardType={'number-pad'}
           placeholder="Enter a number"
         />
@@ -131,7 +131,7 @@ const NewPostScreen = ({navigation}) => {
             const parsedVal = parseInt(val);
             handleEdit({...newPost, rating: parsedVal});
           }}
-          value={newPost}
+          value={JSON.stringify(newPost.rating)}
           keyboardType={'number-pad'}
           placeholder="0 - 10"
         />

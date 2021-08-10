@@ -93,7 +93,7 @@ const ViewProfileScreen = props => {
       <Pressable
         style={styles.backContainer}
         testID="navigate-back-all-users"
-        onPress={() => navigation.navigate('Users')}>
+        onPress={() => navigation.navigate('UsersScreen')}>
         <MaterialCommunityIcons name="arrow-left" size={20} />
         <Text style={styles.back}>All users</Text>
       </Pressable>

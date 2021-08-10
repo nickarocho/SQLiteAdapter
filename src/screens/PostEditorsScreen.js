@@ -47,7 +47,7 @@ const PostEditorsScreen = ({navigation}) => {
         <Text style={styles.heading}>Post Editors ({postEditors.length})</Text>
         <Button
           style={styles.addPostBtn}
-          onPress={() => navigation.navigate('Users')}
+          onPress={() => navigation.navigate('UsersScreen')}
           title="View All Users"
           testID="btn-navigate-new-user"
           color="#2b2b2b"
