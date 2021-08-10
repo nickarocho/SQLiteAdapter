@@ -59,7 +59,7 @@ type Profile
   id: ID!
   firstName: String!
   lastName: String!
-  avatar: Avatar
+  avatar: Avatar!
 }
 
 type PostEditor

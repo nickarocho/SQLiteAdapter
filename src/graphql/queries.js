@@ -256,6 +256,10 @@ export const getUser = /* GraphQL */ `
         id
         firstName
         lastName
+        avatar {
+          url
+          label
+        }
         _version
         _deleted
         _lastChangedAt
@@ -369,6 +373,10 @@ export const getProfile = /* GraphQL */ `
       id
       firstName
       lastName
+      avatar {
+        url
+        label
+      }
       _version
       _deleted
       _lastChangedAt
@@ -389,6 +397,10 @@ export const listProfiles = /* GraphQL */ `
         id
         firstName
         lastName
+        avatar {
+          url
+          label
+        }
         _version
         _deleted
         _lastChangedAt
@@ -418,6 +430,10 @@ export const syncProfiles = /* GraphQL */ `
         id
         firstName
         lastName
+        avatar {
+          url
+          label
+        }
         _version
         _deleted
         _lastChangedAt

@@ -392,7 +392,7 @@ export const schema = {
                     "type": {
                         "nonModel": "Avatar"
                     },
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 },
                 "createdAt": {
@@ -581,5 +581,5 @@ export const schema = {
             }
         }
     },
-    "version": "2ad3b0d9da9965c407f55b2c946dd8f1"
+    "version": "1ce6af9bb58ddb250e6ccc82989aba0b"
 };

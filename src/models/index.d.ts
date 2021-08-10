@@ -69,7 +69,7 @@ export declare class Profile {
   readonly id: string;
   readonly firstName: string;
   readonly lastName: string;
-  readonly avatar?: Avatar;
+  readonly avatar: Avatar;
   readonly createdAt?: string;
   readonly updatedAt?: string;
   constructor(init: ModelInit<Profile, ProfileMetaData>);

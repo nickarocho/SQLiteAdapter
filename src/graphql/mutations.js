@@ -293,6 +293,10 @@ export const createUser = /* GraphQL */ `
         id
         firstName
         lastName
+        avatar {
+          url
+          label
+        }
         _version
         _deleted
         _lastChangedAt
@@ -337,6 +341,10 @@ export const updateUser = /* GraphQL */ `
         id
         firstName
         lastName
+        avatar {
+          url
+          label
+        }
         _version
         _deleted
         _lastChangedAt
@@ -381,6 +389,10 @@ export const deleteUser = /* GraphQL */ `
         id
         firstName
         lastName
+        avatar {
+          url
+          label
+        }
         _version
         _deleted
         _lastChangedAt
@@ -415,6 +427,10 @@ export const createProfile = /* GraphQL */ `
       id
       firstName
       lastName
+      avatar {
+        url
+        label
+      }
       _version
       _deleted
       _lastChangedAt
@@ -433,6 +449,10 @@ export const updateProfile = /* GraphQL */ `
       id
       firstName
       lastName
+      avatar {
+        url
+        label
+      }
       _version
       _deleted
       _lastChangedAt
@@ -451,6 +471,10 @@ export const deleteProfile = /* GraphQL */ `
       id
       firstName
       lastName
+      avatar {
+        url
+        label
+      }
       _version
       _deleted
       _lastChangedAt

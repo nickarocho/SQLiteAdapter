@@ -107,7 +107,7 @@ const NewPostScreen = ({navigation}) => {
         <TextInput
           style={styles.input}
           onChangeText={val => {
-            const parsedVal = parseInt(val);
+            const parsedVal = parseInt(val) || undefined;
             handleEdit({...newPost, views: parsedVal});
           }}
           value={JSON.stringify(newPost.views)}
@@ -128,7 +128,7 @@ const NewPostScreen = ({navigation}) => {
         <TextInput
           style={styles.input}
           onChangeText={val => {
-            const parsedVal = parseInt(val);
+            const parsedVal = parseInt(val) || undefined;
             handleEdit({...newPost, rating: parsedVal});
           }}
           value={JSON.stringify(newPost.rating)}
