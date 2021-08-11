@@ -5,6 +5,7 @@ import {DataStore} from 'aws-amplify';
 import {PostEditor} from '../models';
 
 const PostEditorComponent = ({editorModel, fetchPostEditors}) => {
+  console.log({editorModel});
   const handleDeletePostEditor = async () => {
     try {
       const thisPostEditor = await DataStore.query(PostEditor, editorModel.id);
@@ -18,24 +19,20 @@ const PostEditorComponent = ({editorModel, fetchPostEditors}) => {
   return (
     <View style={styles.container} testID={`postEditor-${editorModel.id}`}>
       <Text>
-        <Text style={styles.listLabelBold}>ID: </Text>
-        {editorModel.id}
-      </Text>
-      <Text>
         <Text style={styles.listLabelBold}>Editor Username: </Text>
         {editorModel.editor ? editorModel.editor.username : 'null'}
+      </Text>
+      <Text>
+        <Text style={styles.listLabelBold}>Editor ID: </Text>
+        {editorModel.id}
       </Text>
       <Text>
         <Text style={styles.listLabelBold}>Post Title: </Text>
         {editorModel.post ? editorModel.post.title : 'null'}
       </Text>
       <Text>
-        <Text style={styles.listLabelBold}>Post Editor Count: </Text>
-        {editorModel.post
-          ? editorModel.post.editors
-            ? editorModel.post.editors.length
-            : 'null post editors'
-          : 'null post'}
+        <Text style={styles.listLabelBold}>Post ID: </Text>
+        {editorModel.post.id}
       </Text>
 
       <View style={styles.btnContainer}>

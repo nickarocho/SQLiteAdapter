@@ -142,11 +142,14 @@ const styles = StyleSheet.create({
   },
   formLabel: {
     color: '#000000',
-    marginTop: 10,
-    marginBottom: 5,
+    marginTop: 20,
+    marginBottom: 10,
+    fontWeight: 'bold',
   },
   input: {
     backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 20,
   },
 });
 

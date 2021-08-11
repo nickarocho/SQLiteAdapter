@@ -98,15 +98,17 @@ const ViewProfileScreen = props => {
         <Text style={styles.back}>All users</Text>
       </Pressable>
 
-      <Text style={styles.editProfileLabel}>Edit Profile</Text>
-      <Switch
-        testID={`switch-toggle-edit-user-profile-${user.id}`}
-        trackColor={{false: '#767577', true: '#81b0ff'}}
-        thumbColor={isEditing ? '#f5dd4b' : '#f4f3f4'}
-        ios_backgroundColor="#3e3e3e"
-        onValueChange={toggleEditProfileSwitch}
-        value={isEditing}
-      />
+      <View style={styles.editContainer}>
+        <Text style={styles.editProfileLabel}>Edit Profile</Text>
+        <Switch
+          testID={`switch-toggle-edit-user-profile-${user.id}`}
+          trackColor={{false: '#767577', true: '#81b0ff'}}
+          thumbColor={isEditing ? '#f5dd4b' : '#f4f3f4'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleEditProfileSwitch}
+          value={isEditing}
+        />
+      </View>
 
       {isEditing ? (
         <View style={styles.profileContainer}>
@@ -209,8 +211,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: 'bold',
   },
+  editContainer: {display: 'flex', alignItems: 'flex-end'},
   editProfileLabel: {
     textAlign: 'right',
+    marginBottom: 10,
   },
   editInput: {
     fontSize: 20,

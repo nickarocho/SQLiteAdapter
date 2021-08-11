@@ -25,20 +25,39 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
         });
       }}>
       <View>
-        <Text style={styles.bigText}>{post.title}</Text>
+        <Text style={styles.bigText}>
+          <Text style={styles.listLabelBold}>Title: </Text>
+          {post.title}
+        </Text>
         <Text style={styles.smallText}>
-          Comments (
+          <Text style={styles.listLabelBold}>Comments </Text>(
           <Text testID={`comment-count-${post.id}`}>
             {post.comments.length}
           </Text>
           )
         </Text>
         <Text style={styles.smallText}>
-          Editors (
+          <Text style={styles.listLabelBold}>Editors </Text>(
           <Text testID={`comment-count-${post.id}`}>
             {post.editors ? post.editors.length : '0'}
           </Text>
           )
+        </Text>
+        <Text style={styles.smallText}>
+          <Text style={styles.listLabelBold}>Views: </Text>
+          {post.views}
+        </Text>
+        <Text style={styles.smallText}>
+          <Text style={styles.listLabelBold}>Draft/Published: </Text>
+          {post.draft ? 'Draft' : 'Published'}
+        </Text>
+        <Text style={styles.smallText}>
+          <Text style={styles.listLabelBold}>Rating: </Text>
+          {post.rating}
+        </Text>
+        <Text style={styles.smallText}>
+          <Text style={styles.listLabelBold}>Post ID: </Text>
+          {post.id}
         </Text>
         <View style={styles.btnContainer}>
           <Button
@@ -83,6 +102,10 @@ const styles = StyleSheet.create({
   bigText: {
     fontSize: 20,
     color: 'black',
+    marginBottom: 10,
+  },
+  listLabelBold: {
+    fontWeight: 'bold',
   },
   btnContainer: {
     display: 'flex',

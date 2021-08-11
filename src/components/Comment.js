@@ -120,6 +120,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     borderColor: 'rgba(0,0,0,.3)',
     borderTopWidth: 1,
+    padding: 10,
+    borderRadius: 20,
   },
 });
 

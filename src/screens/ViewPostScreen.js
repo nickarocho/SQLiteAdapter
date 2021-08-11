@@ -228,17 +228,17 @@ const ViewPostScreen = props => {
   }, [fetchComments, fetchEditors]);
 
   return (
-    <View style={{flex: 1}}>
-      <ScrollView style={styles.container} nestedScrollEnabled={true}>
-        <Pressable
-          style={styles.backContainer}
-          testID="navigate-back-all-posts"
-          onPress={() => navigation.navigate('PostsScreen')}>
-          <MaterialCommunityIcons name="arrow-left" size={20} />
-          <Text style={styles.back}>All posts</Text>
-        </Pressable>
+    <ScrollView style={styles.container} nestedScrollEnabled={true}>
+      <Pressable
+        style={styles.backContainer}
+        testID="navigate-back-all-posts"
+        onPress={() => navigation.navigate('PostsScreen')}>
+        <MaterialCommunityIcons name="arrow-left" size={20} />
+        <Text style={styles.back}>All posts</Text>
+      </Pressable>
 
-        <Text style={styles.editProfileLabel}>Edit Profile</Text>
+      <View style={styles.editContainer}>
+        <Text style={styles.editProfileLabel}>Edit Post</Text>
         <Switch
           testID={`switch-toggle-edit-post-${post.id}`}
           trackColor={{false: '#767577', true: '#81b0ff'}}
@@ -247,165 +247,161 @@ const ViewPostScreen = props => {
           onValueChange={toggleEditPostSwitch}
           value={isEditing}
         />
+      </View>
 
-        {isEditing ? (
-          <View style={styles.newPostContainer}>
-            <Text style={styles.listLabel}>Post title</Text>
-            <TextInput
-              style={styles.editInput}
-              onChangeText={val => handleEdit({...editedPost, title: val})}
-              value={editedPost.title}
-              placeholder="Post title"
-              multiline
-              numberOfLines={2}
-            />
+      {isEditing ? (
+        <View style={styles.newPostContainer}>
+          <Text style={styles.listLabel}>Post title</Text>
+          <TextInput
+            style={styles.editInput}
+            onChangeText={val => handleEdit({...editedPost, title: val})}
+            value={editedPost.title}
+            placeholder="Post title"
+          />
 
-            <Text style={styles.listLabel}>Views</Text>
-            <TextInput
-              style={styles.editInput}
-              onChangeText={val => {
-                const parsedVal = parseInt(val) || undefined;
-                handleEdit({...editedPost, views: parsedVal});
-              }}
-              value={JSON.stringify(editedPost.views)}
-              keyboardType={'number-pad'}
-            />
+          <Text style={styles.listLabel}>Views</Text>
+          <TextInput
+            style={styles.editInput}
+            onChangeText={val => {
+              const parsedVal = parseInt(val) || undefined;
+              handleEdit({...editedPost, views: parsedVal});
+            }}
+            value={JSON.stringify(editedPost.views)}
+            keyboardType={'number-pad'}
+          />
 
-            <Text style={styles.listLabel}>Draft?</Text>
-            <Switch
-              trackColor={{false: '#767577', true: '#81b0ff'}}
-              thumbColor={editedPost.draft ? '#f5dd4b' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={val => handleEdit({...editedPost, draft: val})}
-              value={editedPost.draft}
-            />
+          <Text style={styles.listLabel}>Draft?</Text>
+          <Switch
+            trackColor={{false: '#767577', true: '#81b0ff'}}
+            thumbColor={editedPost.draft ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={val => handleEdit({...editedPost, draft: val})}
+            value={editedPost.draft}
+          />
 
-            <Text style={styles.listLabel}>Rating</Text>
-            <TextInput
-              style={styles.editInput}
-              onChangeText={val => {
-                const parsedVal = parseInt(val) || undefined;
-                handleEdit({...editedPost, rating: parsedVal});
-              }}
-              value={JSON.stringify(editedPost.rating)}
-              keyboardType={'number-pad'}
-            />
+          <Text style={styles.listLabel}>Rating</Text>
+          <TextInput
+            style={styles.editInput}
+            onChangeText={val => {
+              const parsedVal = parseInt(val) || undefined;
+              handleEdit({...editedPost, rating: parsedVal});
+            }}
+            value={JSON.stringify(editedPost.rating)}
+            keyboardType={'number-pad'}
+          />
 
-            <Text style={styles.listLabel}>Editors</Text>
-            <SafeAreaView>
-              <ScrollView>
-                {editors.map((item, index) => {
-                  return (
-                    <View style={styles.checkboxContainer} key={index}>
-                      <CheckBox
-                        disabled={false}
-                        style={styles.textStyle}
-                        value={item.assigned}
-                        onValueChange={async newValue => {
-                          let updatedEditors = editors.map(editor =>
-                            editor.id === item.id
-                              ? {
-                                  ...editor,
-                                  assigned: newValue,
-                                }
-                              : editor,
-                          );
-
-                          setEditors(updatedEditors);
-                        }}
-                      />
-                      <Text>{item.username}</Text>
-                    </View>
-                  );
-                })}
-              </ScrollView>
-            </SafeAreaView>
-          </View>
-        ) : (
-          // Default view - not editing
-          <View style={styles.newPostContainer}>
-            <Text style={styles.listLabel}>Post title</Text>
-            <Text style={styles.bigText}>{editedPost.title}</Text>
-
-            <Text style={styles.listLabel}>Views</Text>
-            <Text style={styles.bigText}>{editedPost.views}</Text>
-
-            <Text style={styles.listLabel}>Draft or Published?</Text>
-            <Text style={styles.bigText}>
-              {editedPost.draft ? 'Draft' : 'Published'}
-            </Text>
-
-            <Text style={styles.listLabel}>Rating</Text>
-            <Text style={styles.bigText}>{editedPost.rating}</Text>
-
-            <Text style={styles.listLabel}>Editors</Text>
-            <SafeAreaView>
-              <ScrollView>
-                {editors.map((item, index) => {
-                  return (
-                    <View key={index} style={styles.checkboxContainer}>
-                      {item.assigned && (
-                        <Text style={styles.bigText}>- {item.username}</Text>
-                      )}
-                    </View>
-                  );
-                })}
-              </ScrollView>
-            </SafeAreaView>
-          </View>
-        )}
-
-        <View style={styles.commentContainer}>
-          <Text style={styles.commentLabel}>
-            Comments ({editedPost.comments.length})
-          </Text>
+          <Text style={styles.listLabel}>Editors</Text>
           <SafeAreaView>
             <ScrollView>
-              {editedPost.comments.map((item, index) => {
+              {editors.map((item, index) => {
                 return (
-                  <CommentComponent
-                    key={index}
-                    comment={item}
-                    navigation={navigation}
-                    style={styles.comment}
-                    fetchComments={fetchComments}
-                  />
+                  <View style={styles.checkboxContainer} key={index}>
+                    <CheckBox
+                      disabled={false}
+                      style={styles.textStyle}
+                      value={item.assigned}
+                      onValueChange={async newValue => {
+                        let updatedEditors = editors.map(editor =>
+                          editor.id === item.id
+                            ? {
+                                ...editor,
+                                assigned: newValue,
+                              }
+                            : editor,
+                        );
+
+                        setEditors(updatedEditors);
+                      }}
+                    />
+                    <Text style={styles.checkboxText}>{item.username}</Text>
+                  </View>
                 );
               })}
             </ScrollView>
           </SafeAreaView>
         </View>
+      ) : (
+        // Default view - not editing
+        <View style={styles.newPostContainer}>
+          <Text style={styles.listLabel}>Post title</Text>
+          <Text style={styles.bigText}>{editedPost.title}</Text>
 
-        {/* new comment input */}
-        <View style={styles.editCommentContainer}>
-          <TextInput
-            value={newComment}
-            onChangeText={setNewComment}
-            style={styles.commentInput}
-            onSubmitEditing={handleSubmitComment}
-            placeholder={'Add a comment...'}
-          />
-          <Pressable
-            style={styles.icon}
-            testID="icon-submit-comment"
-            onPress={handleSubmitComment}>
-            <MaterialCommunityIcons name="check" color={'#1b494a'} size={30} />
-          </Pressable>
+          <Text style={styles.listLabel}>Views</Text>
+          <Text style={styles.bigText}>{editedPost.views}</Text>
+
+          <Text style={styles.listLabel}>Draft or Published?</Text>
+          <Text style={styles.bigText}>
+            {editedPost.draft ? 'Draft' : 'Published'}
+          </Text>
+
+          <Text style={styles.listLabel}>Rating</Text>
+          <Text style={styles.bigText}>{editedPost.rating}</Text>
+
+          <Text style={styles.listLabel}>Editors</Text>
+          <SafeAreaView>
+            <ScrollView>
+              {editors.map((item, index) => {
+                return (
+                  <View key={index} style={styles.checkboxContainer}>
+                    {item.assigned && (
+                      <Text style={styles.bigText}>- {item.username}</Text>
+                    )}
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </SafeAreaView>
         </View>
-      </ScrollView>
-    </View>
+      )}
+
+      <View style={styles.commentContainer}>
+        <Text style={styles.commentLabel}>
+          Comments ({editedPost.comments.length})
+        </Text>
+        <SafeAreaView>
+          <ScrollView>
+            {editedPost.comments.map((item, index) => {
+              return (
+                <CommentComponent
+                  key={index}
+                  comment={item}
+                  navigation={navigation}
+                  style={styles.comment}
+                  fetchComments={fetchComments}
+                />
+              );
+            })}
+          </ScrollView>
+        </SafeAreaView>
+      </View>
+
+      {/* new comment input */}
+      <View style={styles.editCommentContainer}>
+        <TextInput
+          value={newComment}
+          onChangeText={setNewComment}
+          style={styles.commentInput}
+          onSubmitEditing={handleSubmitComment}
+          placeholder={'Add a comment...'}
+        />
+        <Pressable
+          style={styles.icon}
+          testID="icon-submit-comment"
+          onPress={handleSubmitComment}>
+          <MaterialCommunityIcons name="check" color={'#1b494a'} size={30} />
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: 100,
     marginVertical: 10,
     borderRadius: 10,
     marginHorizontal: 10,
     display: 'flex',
-    padding: 20,
-    flexGrow: 1,
+    paddingHorizontal: 20,
   },
   bigText: {
     fontSize: 20,
@@ -416,18 +412,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: 'bold',
   },
+  editContainer: {display: 'flex', alignItems: 'flex-end'},
   editProfileLabel: {
     textAlign: 'right',
+    marginBottom: 10,
   },
   editInput: {
     fontSize: 20,
     color: 'black',
     backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 20,
   },
   checkboxContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  checkboxText: {
+    paddingLeft: 10,
   },
   commentLabel: {
     fontWeight: 'bold',
@@ -458,6 +461,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 50,
     flexGrow: 1,
+    padding: 10,
   },
   backContainer: {
     display: 'flex',

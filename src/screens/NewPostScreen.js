@@ -8,18 +8,20 @@ import {
   Button,
   Switch,
   SafeAreaView,
+  Pressable,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import {DataStore} from '@aws-amplify/datastore';
 import {Post, User, PostEditor} from '../models';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const NewPostScreen = ({navigation}) => {
   const [newPost, setNewPost] = useState({
     title: '',
-    views: 0,
+    views: undefined,
     metadata: '{}',
     draft: true,
-    rating: 0,
+    rating: undefined,
     editors: [],
     comments: [],
   });
@@ -91,6 +93,13 @@ const NewPostScreen = ({navigation}) => {
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>🖋 Create a New Post</Text>
       </View>
+      <Pressable
+        style={styles.backContainer}
+        testID="navigate-back-all-users"
+        onPress={() => navigation.navigate('PostsScreen')}>
+        <MaterialCommunityIcons name="arrow-left" size={20} />
+        <Text style={styles.back}>All posts</Text>
+      </Pressable>
 
       <View style={styles.newPostContainer}>
         <Text style={styles.formLabel}>Post title</Text>
@@ -99,8 +108,6 @@ const NewPostScreen = ({navigation}) => {
           onChangeText={val => handleEdit({...newPost, title: val})}
           value={newPost.title}
           placeholder="Post title"
-          multiline
-          numberOfLines={4}
         />
 
         <Text style={styles.formLabel}>Views</Text>
@@ -144,7 +151,6 @@ const NewPostScreen = ({navigation}) => {
                 <View key={index} style={styles.checkboxContainer}>
                   <CheckBox
                     disabled={false}
-                    style={styles.textStyle}
                     value={item.assigned}
                     onValueChange={newValue => {
                       let updatedEditors = editors.map(editor =>
@@ -162,7 +168,7 @@ const NewPostScreen = ({navigation}) => {
                       });
                     }}
                   />
-                  <Text>{item.username}</Text>
+                  <Text style={styles.checkboxText}>{item.username}</Text>
                 </View>
               );
             })}
@@ -192,6 +198,12 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: 'black',
   },
+  backContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 20,
+  },
   newPostContainer: {
     marginVertical: 10,
     marginHorizontal: 10,
@@ -207,11 +219,22 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 10,
   },
   checkboxContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  checkboxText: {
+    paddingLeft: 10,
+  },
+  back: {
+    color: '#000',
+    textDecorationLine: 'underline',
+    fontSize: 18,
+    marginLeft: 5,
   },
 });
 
