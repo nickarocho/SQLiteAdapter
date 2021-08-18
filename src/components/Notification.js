@@ -13,7 +13,6 @@ const NotificationComponent = () => {
   const CLEAR_TIMER = 6000;
 
   const animateIn = () => {
-    console.log('in');
     Animated.timing(translateYValue, {
       toValue: 0,
       duration: 500,
@@ -57,7 +56,6 @@ const NotificationComponent = () => {
       testID="notification-container"
       style={[
         {...styles.container, transform: [{translateY: translateYValue}]},
-        // notification.active ? styles.active : styles.inActive,
         styles.notificationText,
         notification.type === 'success'
           ? styles.successBg
@@ -141,14 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     paddingLeft: 15,
-  },
-  active: {
-    top: 0,
-    display: 'flex',
-  },
-  inActive: {
-    top: '-100%',
-    display: 'none',
   },
   success: {
     color: '#5ecc7b',
