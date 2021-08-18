@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -14,14 +14,15 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import {User, Profile} from '../models';
 import {DataStore} from 'aws-amplify';
+import NotificationContext from '../context/NotificationContext';
 
 const ViewProfileScreen = props => {
-  console.log({props});
   const {user} = props.route.params;
   const {navigation} = props;
   const [editedUser, setEditedUser] = useState({...user});
   const [editedProfile, setEditedProfile] = useState({...user.profile});
   const [isEditing, setIsEditing] = useState(false);
+  const [notification, setNotification] = useContext(NotificationContext);
 
   const toggleEditProfileSwitch = () => {
     if (isEditing) {
@@ -78,9 +79,21 @@ const ViewProfileScreen = props => {
           ...updated,
           avatar: {...updated.avatar},
         });
+        setNotification({
+          ...notification,
+          message: 'Successfully updated user profile!',
+          type: 'success',
+          active: true,
+        });
       });
     } catch (err) {
       console.error('something went wrong with handleUpdateProfile', err);
+      setNotification({
+        ...notification,
+        message: 'Error updating profile: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -101,7 +114,7 @@ const ViewProfileScreen = props => {
       <View style={styles.editContainer}>
         <Text style={styles.editProfileLabel}>Edit Profile</Text>
         <Switch
-          testID={`switch-toggle-edit-user-profile-${user.id}`}
+          testID="switch-toggle-edit-user-profile"
           trackColor={{false: '#767577', true: '#81b0ff'}}
           thumbColor={isEditing ? '#f5dd4b' : '#f4f3f4'}
           ios_backgroundColor="#3e3e3e"
@@ -117,6 +130,8 @@ const ViewProfileScreen = props => {
             style={styles.editInput}
             onChangeText={val => setEditedUser({...editedUser, username: val})}
             value={editedUser.username}
+            showSoftInputOnFocus={false}
+            testID="edit-profile-username"
           />
 
           <Text style={styles.listLabel}>First name</Text>
@@ -124,6 +139,8 @@ const ViewProfileScreen = props => {
             style={styles.editInput}
             onChangeText={val => handleEdit({...editedProfile, firstName: val})}
             value={editedProfile.firstName}
+            showSoftInputOnFocus={false}
+            testID="edit-profile-firstName"
           />
 
           <Text style={styles.listLabel}>Last name</Text>
@@ -131,6 +148,8 @@ const ViewProfileScreen = props => {
             style={styles.editInput}
             onChangeText={val => handleEdit({...editedProfile, lastName: val})}
             value={editedProfile.lastName}
+            showSoftInputOnFocus={false}
+            testID="edit-profile-lastName"
           />
 
           <Text style={styles.listLabel}>Avatar URL</Text>
@@ -143,6 +162,8 @@ const ViewProfileScreen = props => {
               })
             }
             value={editedProfile.avatar.url}
+            showSoftInputOnFocus={false}
+            testID="edit-profile-avatarURL"
           />
 
           <Text style={styles.listLabel}>Avatar label</Text>
@@ -155,25 +176,37 @@ const ViewProfileScreen = props => {
               })
             }
             value={editedProfile.avatar.label}
+            showSoftInputOnFocus={false}
+            testID="edit-profile-avatarLabel"
           />
         </View>
       ) : (
         // Default view - not editing
         <View style={styles.profileContainer}>
           <Text style={styles.listLabel}>Username</Text>
-          <Text style={styles.bigText}>{editedUser.username}</Text>
+          <Text style={styles.bigText} testID="saved-profile-username">
+            {editedUser.username}
+          </Text>
 
           <Text style={styles.listLabel}>First name</Text>
-          <Text style={styles.bigText}>{editedProfile.firstName}</Text>
+          <Text style={styles.bigText} testID="saved-profile-firstName">
+            {editedProfile.firstName}
+          </Text>
 
           <Text style={styles.listLabel}>Last name</Text>
-          <Text style={styles.bigText}>{editedProfile.lastName}</Text>
+          <Text style={styles.bigText} testID="saved-profile-lastName">
+            {editedProfile.lastName}
+          </Text>
 
           <Text style={styles.listLabel}>Avatar URL</Text>
-          <Text style={styles.bigText}>{editedProfile.avatar?.url}</Text>
+          <Text style={styles.bigText} testID="saved-profile-avatarURL">
+            {editedProfile.avatar?.url}
+          </Text>
 
           <Text style={styles.listLabel}>Avatar label</Text>
-          <Text style={styles.bigText}>{editedProfile.avatar?.label}</Text>
+          <Text style={styles.bigText} testID="saved-profile-avatarLabel">
+            {editedProfile.avatar?.label}
+          </Text>
         </View>
       )}
       <View style={styles.postsContainer}>
@@ -220,6 +253,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     backgroundColor: '#fff',
+    padding: 5,
+    borderRadius: 20,
   },
   commentLabel: {
     fontWeight: 'bold',

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
 import {
   View,
   Text,
@@ -16,10 +16,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import {Post, Comment, PostEditor, User} from '../models';
 import {DataStore} from 'aws-amplify';
+import NotificationContext from '../context/NotificationContext';
 
 const ViewPostScreen = props => {
   const {post} = props.route.params;
   const {navigation} = props;
+  const [notification, setNotification] = useContext(NotificationContext);
   const [editedPost, setEditedPost] = useState({...post});
   const [newComment, setNewComment] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -64,6 +66,7 @@ const ViewPostScreen = props => {
     if (!id) {
       console.error('No Post ID passed to handleUpdate');
     }
+
     try {
       const originalPost = await DataStore.query(Post, id);
       const updatedPostEditors = await updatePostEditors();
@@ -76,9 +79,23 @@ const ViewPostScreen = props => {
         setEditedPost({
           ...updated,
         });
+
+        setNotification({
+          ...notification,
+          message: 'Successfully updated post!',
+          type: 'success',
+          active: true,
+        });
       });
     } catch (err) {
       console.error('something went wrong with handleUpdatePost', err);
+
+      setNotification({
+        ...notification,
+        message: 'Error updating post: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -94,8 +111,21 @@ const ViewPostScreen = props => {
           postID: post.id,
         }),
       );
+
+      setNotification({
+        ...notification,
+        message: 'Successfully created new comment!',
+        type: 'success',
+        active: true,
+      });
     } catch (err) {
       console.error('something went wrong with handleSubmitComment:', err);
+      setNotification({
+        ...notification,
+        message: 'Error adding comment: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -240,7 +270,7 @@ const ViewPostScreen = props => {
       <View style={styles.editContainer}>
         <Text style={styles.editProfileLabel}>Edit Post</Text>
         <Switch
-          testID={`switch-toggle-edit-post-${post.id}`}
+          testID="switch-toggle-edit-post"
           trackColor={{false: '#767577', true: '#81b0ff'}}
           thumbColor={isEditing ? '#f5dd4b' : '#f4f3f4'}
           ios_backgroundColor="#3e3e3e"
@@ -257,6 +287,8 @@ const ViewPostScreen = props => {
             onChangeText={val => handleEdit({...editedPost, title: val})}
             value={editedPost.title}
             placeholder="Post title"
+            showSoftInputOnFocus={false}
+            testID={`edit-post-title`}
           />
 
           <Text style={styles.listLabel}>Views</Text>
@@ -267,7 +299,8 @@ const ViewPostScreen = props => {
               handleEdit({...editedPost, views: parsedVal});
             }}
             value={JSON.stringify(editedPost.views)}
-            keyboardType={'number-pad'}
+            showSoftInputOnFocus={false}
+            testID={`edit-post-views`}
           />
 
           <Text style={styles.listLabel}>Draft?</Text>
@@ -277,6 +310,7 @@ const ViewPostScreen = props => {
             ios_backgroundColor="#3e3e3e"
             onValueChange={val => handleEdit({...editedPost, draft: val})}
             value={editedPost.draft}
+            testID={`edit-post-draft`}
           />
 
           <Text style={styles.listLabel}>Rating</Text>
@@ -287,44 +321,59 @@ const ViewPostScreen = props => {
               handleEdit({...editedPost, rating: parsedVal});
             }}
             value={JSON.stringify(editedPost.rating)}
-            keyboardType={'number-pad'}
+            showSoftInputOnFocus={false}
+            testID={`edit-post-ratings`}
           />
 
           <Text style={styles.listLabel}>Editors</Text>
           <SafeAreaView>
-            <ScrollView>
-              {editors.map((item, index) => {
-                return (
-                  <View style={styles.checkboxContainer} key={index}>
-                    <CheckBox
-                      disabled={false}
-                      style={styles.textStyle}
-                      value={item.assigned}
-                      onValueChange={async newValue => {
-                        let updatedEditors = editors.map(editor =>
-                          editor.id === item.id
-                            ? {
-                                ...editor,
-                                assigned: newValue,
-                              }
-                            : editor,
-                        );
+            {editors.length > 0 ? (
+              <ScrollView>
+                {editors.map((item, index) => {
+                  return (
+                    <View style={styles.checkboxContainer} key={index}>
+                      <CheckBox
+                        disabled={false}
+                        style={styles.textStyle}
+                        value={item.assigned}
+                        testID={`edit-post-editor-${index}`}
+                        onValueChange={async newValue => {
+                          let updatedEditors = editors.map(editor =>
+                            editor.id === item.id
+                              ? {
+                                  ...editor,
+                                  assigned: newValue,
+                                }
+                              : editor,
+                          );
 
-                        setEditors(updatedEditors);
-                      }}
-                    />
-                    <Text style={styles.checkboxText}>{item.username}</Text>
-                  </View>
-                );
-              })}
-            </ScrollView>
+                          setEditors(updatedEditors);
+                        }}
+                      />
+                      <Text style={styles.checkboxText}>{item.username}</Text>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            ) : (
+              <Text>
+                <Pressable onPress={() => navigation.navigate('NewUser')}>
+                  <Text>No users...</Text>
+                  <Text style={styles.underlined}>
+                    Create a user to add one as an Editor →
+                  </Text>
+                </Pressable>{' '}
+              </Text>
+            )}
           </SafeAreaView>
         </View>
       ) : (
         // Default view - not editing
         <View style={styles.newPostContainer}>
           <Text style={styles.listLabel}>Post title</Text>
-          <Text style={styles.bigText}>{editedPost.title}</Text>
+          <Text style={styles.bigText} testID="saved-post-title">
+            {editedPost.title}
+          </Text>
 
           <Text style={styles.listLabel}>Views</Text>
           <Text style={styles.bigText}>{editedPost.views}</Text>
@@ -341,13 +390,11 @@ const ViewPostScreen = props => {
           <SafeAreaView>
             <ScrollView>
               {editors.map((item, index) => {
-                return (
-                  <View key={index} style={styles.checkboxContainer}>
-                    {item.assigned && (
-                      <Text style={styles.bigText}>- {item.username}</Text>
-                    )}
-                  </View>
-                );
+                <View key={index} style={styles.checkboxContainer}>
+                  {item.assigned && (
+                    <Text style={styles.bigText}>- {item.username}</Text>
+                  )}
+                </View>;
               })}
             </ScrollView>
           </SafeAreaView>
@@ -356,7 +403,8 @@ const ViewPostScreen = props => {
 
       <View style={styles.commentContainer}>
         <Text style={styles.commentLabel}>
-          Comments ({editedPost.comments.length})
+          Comments (
+          <Text testID="comment-count">{editedPost.comments.length}</Text>)
         </Text>
         <SafeAreaView>
           <ScrollView>
@@ -364,7 +412,7 @@ const ViewPostScreen = props => {
               return (
                 <CommentComponent
                   key={index}
-                  comment={item}
+                  comment={{...item, commentIndex: index}}
                   navigation={navigation}
                   style={styles.comment}
                   fetchComments={fetchComments}
@@ -383,6 +431,8 @@ const ViewPostScreen = props => {
           style={styles.commentInput}
           onSubmitEditing={handleSubmitComment}
           placeholder={'Add a comment...'}
+          testID="add-comment-input"
+          showSoftInputOnFocus={false}
         />
         <Pressable
           style={styles.icon}
@@ -406,6 +456,9 @@ const styles = StyleSheet.create({
   bigText: {
     fontSize: 20,
     color: 'black',
+  },
+  underlined: {
+    textDecorationLine: 'underline',
   },
   listLabel: {
     marginTop: 25,

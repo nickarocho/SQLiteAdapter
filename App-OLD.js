@@ -34,8 +34,8 @@ Unauthed:
 1. Sync down data for each model (will have some pre-loaded data that does not get changed while test runs)
 
 Log-in
-2. Create records for each model; ensure there are no mutation errors
-3. Update records for each model; ensure no errors
+2. Create records for each model; [ensure there are no mutation errors]
+3. Update records for each model; [ensure no errors]
 4. Query records from local store; validate data; versions etc.
 5. Delete * parent records for logged-in user; validate cascade behavior; validate no errors
 

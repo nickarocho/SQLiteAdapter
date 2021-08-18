@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,17 @@ import {
   TextInput,
   Button,
   ScrollView,
+  Pressable,
 } from 'react-native';
 
 import {DataStore} from 'aws-amplify';
 import {User, Profile} from '../models';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import NotificationContext from '../context/NotificationContext';
 
 const NewUserScreen = ({navigation}) => {
+  const [notification, setNotification] = useContext(NotificationContext);
+
   const [newUser, setNewUser] = useState({
     username: '',
   });
@@ -26,11 +31,32 @@ const NewUserScreen = ({navigation}) => {
 
   const handleCreateUser = async () => {
     try {
+      if (!newUser.username) {
+        setNotification({
+          ...notification,
+          message: 'No username set. Add a username.',
+          type: 'error',
+          active: true,
+        });
+        return;
+      }
       const savedProfile = await DataStore.save(new Profile({...newProfile}));
       const savedUser = await DataStore.save(
         new User({...newUser, profile: savedProfile}),
       );
+      setNotification({
+        ...notification,
+        message: 'Successfully created new user!',
+        type: 'success',
+        active: true,
+      });
     } catch (err) {
+      setNotification({
+        ...notification,
+        message: 'Error creating new user: ' + err.message,
+        type: 'success',
+        active: true,
+      });
       console.error('Something went wrong with handleCreateUser', err);
     }
     navigation.navigate('UsersScreen');
@@ -47,8 +73,18 @@ const NewUserScreen = ({navigation}) => {
   return (
     <ScrollView>
       <View style={styles.headingContainer}>
-        <Text style={styles.heading}>🖋 Create a New User</Text>
+        <Text testID="new-user-dismiss-keyboard-el" style={styles.heading}>
+          🖋 Create a New User
+        </Text>
       </View>
+
+      <Pressable
+        style={styles.backContainer}
+        testID="navigate-back-all-users"
+        onPress={() => navigation.navigate('UsersScreen')}>
+        <MaterialCommunityIcons name="arrow-left" size={20} />
+        <Text style={styles.back}>All users</Text>
+      </Pressable>
 
       <View style={styles.newUserContainer}>
         <Text style={styles.formLabel}>Username</Text>
@@ -57,6 +93,8 @@ const NewUserScreen = ({navigation}) => {
           onChangeText={val => handleEditUser({username: val})}
           value={newUser.username}
           placeholder="joeshmoe"
+          testID="new-user-username-input"
+          showSoftInputOnFocus={false}
         />
 
         <Text style={styles.formLabel}>First name</Text>
@@ -67,6 +105,8 @@ const NewUserScreen = ({navigation}) => {
           }
           value={newProfile.firstName}
           placeholder="Joe"
+          testID="new-user-first-name-input"
+          showSoftInputOnFocus={false}
         />
 
         <Text style={styles.formLabel}>Last name</Text>
@@ -77,6 +117,8 @@ const NewUserScreen = ({navigation}) => {
           }
           value={newProfile.lastName}
           placeholder="Shmoe"
+          testID="new-user-last-name-input"
+          showSoftInputOnFocus={false}
         />
 
         <Text style={styles.formLabel}>Avatar URL</Text>
@@ -90,6 +132,8 @@ const NewUserScreen = ({navigation}) => {
           }
           value={newProfile.avatar.url}
           placeholder="https://github.com/aws-amplify/amplify-js"
+          testID="new-user-avatar-url-input"
+          showSoftInputOnFocus={false}
         />
 
         <Text style={styles.formLabel}>Avatar Label</Text>
@@ -103,6 +147,8 @@ const NewUserScreen = ({navigation}) => {
           }
           value={newProfile.avatar.label}
           placeholder="Headshot"
+          testID="new-user-avatar-label-input"
+          showSoftInputOnFocus={false}
         />
       </View>
 
@@ -132,6 +178,18 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 25,
     color: 'black',
+  },
+  backContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 20,
+  },
+  back: {
+    color: '#000',
+    textDecorationLine: 'underline',
+    fontSize: 18,
+    marginLeft: 5,
   },
   newUserContainer: {
     marginVertical: 10,

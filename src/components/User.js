@@ -1,18 +1,32 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Pressable, Button} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {DataStore} from 'aws-amplify';
 import {User} from '../models';
+import NotificationContext from '../context/NotificationContext';
 
 const UserComponent = ({user, navigation, fetchUsers}) => {
+  const [notification, setNotification] = useContext(NotificationContext);
   const handleDeleteUser = async () => {
     try {
       const thisUser = await DataStore.query(User, user.id);
       DataStore.delete(thisUser);
+      setNotification({
+        ...notification,
+        message: 'Successfully deleted user!',
+        type: 'success',
+        active: true,
+      });
       fetchUsers();
     } catch (err) {
       console.error('something went wrong with handleDeleteUser:', err);
+      setNotification({
+        ...notification,
+        message: 'Error deleting user: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -39,7 +53,7 @@ const UserComponent = ({user, navigation, fetchUsers}) => {
           <Button
             title={'View profile'}
             color="#2B2B2B"
-            testID={`btn-view-user-${user.id}`}
+            testID={`btn-view-user-${user.userIndex}`}
             onPress={() => {
               navigation.navigate('Profile', {
                 user: user,
@@ -49,7 +63,7 @@ const UserComponent = ({user, navigation, fetchUsers}) => {
           <Button
             title={'Delete user'}
             color="#940005"
-            testID={`btn-delete-user-${user.id}`}
+            testID={`btn-delete-user-${user.userIndex}`}
             onPress={handleDeleteUser}
           />
         </View>

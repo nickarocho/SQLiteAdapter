@@ -34,7 +34,6 @@ const PostEditorsScreen = ({navigation}) => {
   const fetchPostEditors = async () => {
     try {
       const allPostEditors = await DataStore.query(PostEditor);
-      console.log({allPostEditors});
       updatePostEditors(allPostEditors);
     } catch (err) {
       console.error('something went wrong with fetchPostEditors:', err);
@@ -61,7 +60,7 @@ const PostEditorsScreen = ({navigation}) => {
                 key={index}
                 navigation={navigation}
                 fetchPostEditors={fetchPostEditors}
-                editorModel={{...item}}
+                editorModel={{...item, postEditorIndex: index}}
               />
             );
           })}

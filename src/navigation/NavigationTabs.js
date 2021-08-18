@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import {StyleSheet} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -69,7 +68,6 @@ const NavigationTabs = () => {
       <Tab.Screen
         name="Posts"
         component={PostsStackScreen}
-        testID={'tab-posts'}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons
@@ -78,12 +76,13 @@ const NavigationTabs = () => {
               size={26}
             />
           ),
+          tabBarTestID: 'tab-posts',
+          headerTitle: 'All Posts',
         }}
       />
       <Tab.Screen
         name="Users"
         component={UsersStackScreen}
-        testID={'tab-users'}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons
@@ -92,13 +91,15 @@ const NavigationTabs = () => {
               size={26}
             />
           ),
+          tabBarTestID: 'tab-users',
+          headerTitle: 'All Users',
         }}
       />
       <Tab.Screen
         name="Post Editors"
         component={PostEditorsScreen}
-        testID={'tab-post-editors'}
         options={{
+          tabBarTestID: 'hi',
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons
               name="account-edit"
@@ -106,26 +107,23 @@ const NavigationTabs = () => {
               size={26}
             />
           ),
+          headerTitle: 'All Post Editors',
         }}
       />
       <Tab.Screen
         name="Log In"
         component={AuthScreen}
-        testID={'tab-login'}
+        tabBarTestID={'tab-login'}
         options={{
           tabBarIcon: ({color}) => (
             <MaterialCommunityIcons name="login" color={color} size={26} />
           ),
+          tabBarTestID: 'tab-login',
+          headerTitle: 'Log In / Sign Up',
         }}
       />
     </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: 'yellow',
-  },
-});
 
 export default NavigationTabs;

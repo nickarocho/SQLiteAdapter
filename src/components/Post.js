@@ -1,17 +1,32 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Pressable, Button} from 'react-native';
 
 import {DataStore} from 'aws-amplify';
 import {Post} from '../models';
+import NotificationContext from '../context/NotificationContext';
 
 const PostComponent = ({post, navigation, fetchPosts}) => {
+  const [notification, setNotification] = useContext(NotificationContext);
+
   const handleDeletePost = async () => {
     try {
       const thisPost = await DataStore.query(Post, post.id);
       DataStore.delete(thisPost);
       fetchPosts();
+      setNotification({
+        ...notification,
+        message: 'Successfully deleted post!',
+        type: 'success',
+        active: true,
+      });
     } catch (err) {
       console.error('something went wrong with handleDeletePost:', err);
+      setNotification({
+        ...notification,
+        message: 'Error deleting post: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -26,8 +41,10 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
       }}>
       <View>
         <Text style={styles.bigText}>
-          <Text style={styles.listLabelBold}>Title: </Text>
-          {post.title}
+          <Text>
+            <Text style={styles.listLabelBold}>Title: </Text>
+            <Text testID={`post-${post.postIndex}-title`}>{post.title}</Text>
+          </Text>
         </Text>
         <Text style={styles.smallText}>
           <Text style={styles.listLabelBold}>Comments </Text>(
@@ -63,7 +80,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
           <Button
             title={'View post'}
             color="#2b2b2b"
-            testID={`btn-view-post-${post.id}`}
+            testID={`btn-view-post-${post.postIndex}`}
             onPress={() => {
               navigation.navigate('Post', {
                 post: post,
@@ -72,7 +89,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
           />
           <Button
             title={'Delete post'}
-            testID={`btn-delete-post-${post.id}`}
+            testID={`btn-delete-post-${post.postIndex}`}
             color="#940005"
             onPress={handleDeletePost}
           />

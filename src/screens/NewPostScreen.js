@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Pressable,
 } from 'react-native';
+import NotificationContext from '../context/NotificationContext';
 import CheckBox from '@react-native-community/checkbox';
 import {DataStore} from '@aws-amplify/datastore';
 import {Post, User, PostEditor} from '../models';
@@ -26,6 +27,7 @@ const NewPostScreen = ({navigation}) => {
     comments: [],
   });
   const [editors, setEditors] = useState([]);
+  const [notification, setNotification] = useContext(NotificationContext);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -52,25 +54,43 @@ const NewPostScreen = ({navigation}) => {
   };
 
   const createPostEditors = async post => {
-    const result = await Promise.all(
-      editors
-        .filter(item => item.assigned)
-        .map(async item => {
-          const user = await DataStore.query(User, item.id);
-          const postEditor = await DataStore.save(
-            new PostEditor({
-              post: post,
-              editor: user,
-            }),
-          );
-          return postEditor;
-        }),
-    );
-    return result;
+    try {
+      const result = await Promise.all(
+        editors
+          .filter(item => item.assigned)
+          .map(async item => {
+            const user = await DataStore.query(User, item.id);
+            const postEditor = await DataStore.save(
+              new PostEditor({
+                post: post,
+                editor: user,
+              }),
+            );
+            return postEditor;
+          }),
+      );
+      return result;
+    } catch (err) {
+      console.error(err);
+      setNotification({
+        ...notification,
+        message: 'Error creating Post Editor' + err,
+        type: 'error',
+        active: true,
+      });
+    }
   };
 
   const createPost = async () => {
-    if (!newPost.title) return;
+    if (!newPost.title) {
+      setNotification({
+        ...notification,
+        message: 'No title, no post! Add a title.',
+        type: 'error',
+        active: true,
+      });
+      return;
+    }
     try {
       const post = await DataStore.save(
         new Post({
@@ -82,14 +102,26 @@ const NewPostScreen = ({navigation}) => {
         }),
       );
       const postEditors = await createPostEditors(post);
+      setNotification({
+        ...notification,
+        message: 'Successfully created new post!',
+        type: 'success',
+        active: true,
+      });
       navigation.navigate('PostsScreen');
     } catch (err) {
       console.error('something went wrong with createPost:', err);
+      setNotification({
+        ...notification,
+        message: 'Error creating Post' + err,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
   return (
-    <ScrollView>
+    <ScrollView testID="new-post-body">
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>🖋 Create a New Post</Text>
       </View>
@@ -108,6 +140,8 @@ const NewPostScreen = ({navigation}) => {
           onChangeText={val => handleEdit({...newPost, title: val})}
           value={newPost.title}
           placeholder="Post title"
+          testID="new-post-title-input"
+          showSoftInputOnFocus={false}
         />
 
         <Text style={styles.formLabel}>Views</Text>
@@ -120,6 +154,8 @@ const NewPostScreen = ({navigation}) => {
           value={JSON.stringify(newPost.views)}
           keyboardType={'number-pad'}
           placeholder="Enter a number"
+          testID="new-post-views-input"
+          showSoftInputOnFocus={false}
         />
 
         <Text style={styles.formLabel}>Draft?</Text>
@@ -129,6 +165,7 @@ const NewPostScreen = ({navigation}) => {
           ios_backgroundColor="#3e3e3e"
           onValueChange={val => handleEdit({...newPost, draft: val})}
           value={newPost.draft}
+          testID="new-post-draft-toggle"
         />
 
         <Text style={styles.formLabel}>Rating</Text>
@@ -141,39 +178,44 @@ const NewPostScreen = ({navigation}) => {
           value={JSON.stringify(newPost.rating)}
           keyboardType={'number-pad'}
           placeholder="0 - 10"
+          testID="new-post-rating-input"
+          showSoftInputOnFocus={false}
         />
 
         <Text style={styles.formLabel}>Editors</Text>
-        <SafeAreaView>
-          <ScrollView>
-            {editors.map((item, index) => {
-              return (
-                <View key={index} style={styles.checkboxContainer}>
-                  <CheckBox
-                    disabled={false}
-                    value={item.assigned}
-                    onValueChange={newValue => {
-                      let updatedEditors = editors.map(editor =>
-                        editor.id === item.id
-                          ? {
-                              ...editor,
-                              assigned: newValue,
-                            }
-                          : editor,
-                      );
-                      setEditors(updatedEditors);
-                      handleEdit({
-                        ...newPost,
-                        editors: updatedEditors,
-                      });
-                    }}
-                  />
-                  <Text style={styles.checkboxText}>{item.username}</Text>
-                </View>
-              );
-            })}
-          </ScrollView>
-        </SafeAreaView>
+        {editors.length > 0 && (
+          <SafeAreaView>
+            <ScrollView>
+              {editors.map((item, index) => {
+                return (
+                  <View key={index} style={styles.checkboxContainer}>
+                    <CheckBox
+                      disabled={false}
+                      value={item.assigned}
+                      testID={`new-post-editors-checkbox-${index}`}
+                      onValueChange={newValue => {
+                        let updatedEditors = editors.map(editor =>
+                          editor.id === item.id
+                            ? {
+                                ...editor,
+                                assigned: newValue,
+                              }
+                            : editor,
+                        );
+                        setEditors(updatedEditors);
+                        handleEdit({
+                          ...newPost,
+                          editors: updatedEditors,
+                        });
+                      }}
+                    />
+                    <Text style={styles.checkboxText}>{item.username}</Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </SafeAreaView>
+        )}
       </View>
 
       <Button

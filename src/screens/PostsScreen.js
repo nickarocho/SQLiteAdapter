@@ -85,7 +85,7 @@ const PostsScreen = ({navigation}) => {
             return (
               <PostComponent
                 key={index}
-                post={{...item}}
+                post={{...item, postIndex: index}}
                 style={styles.textStyle}
                 navigation={navigation}
                 fetchPosts={fetchPosts}

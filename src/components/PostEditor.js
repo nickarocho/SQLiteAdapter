@@ -1,18 +1,33 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Button} from 'react-native';
 
 import {DataStore} from 'aws-amplify';
 import {PostEditor} from '../models';
+import NotificationContext from '../context/NotificationContext';
 
 const PostEditorComponent = ({editorModel, fetchPostEditors}) => {
-  console.log({editorModel});
+  const [notification, setNotification] = useContext(NotificationContext);
   const handleDeletePostEditor = async () => {
     try {
       const thisPostEditor = await DataStore.query(PostEditor, editorModel.id);
       DataStore.delete(thisPostEditor);
+
+      setNotification({
+        ...notification,
+        message: 'Successfully deleted post editor!',
+        type: 'success',
+        active: true,
+      });
       fetchPostEditors();
     } catch (err) {
       console.error('something went wrong with handleDeletePostEditor:', err);
+
+      setNotification({
+        ...notification,
+        message: 'Error deleting post editor: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -39,7 +54,7 @@ const PostEditorComponent = ({editorModel, fetchPostEditors}) => {
         <Button
           title={'Delete post editor'}
           color="#940005"
-          testID={`btn-delete-postEditor-${editorModel.id}`}
+          testID={`btn-delete-postEditor-${editorModel.postEditorIndex}`}
           onPress={handleDeletePostEditor}
         />
       </View>

@@ -51,7 +51,9 @@ const UsersScreen = ({navigation}) => {
   return (
     <ScrollView>
       <View style={styles.headingContainer}>
-        <Text style={styles.heading}>All Users ({users.length})</Text>
+        <Text style={styles.heading}>
+          All Users (<Text testID="user-count">{users.length}</Text>)
+        </Text>
         <Button
           style={styles.addPostBtn}
           onPress={() => navigation.navigate('NewUser')}
@@ -66,7 +68,7 @@ const UsersScreen = ({navigation}) => {
             return (
               <UserComponent
                 key={index}
-                user={{...item}}
+                user={{...item, userIndex: index}}
                 style={styles.textStyle}
                 navigation={navigation}
                 fetchUsers={fetchUsers}

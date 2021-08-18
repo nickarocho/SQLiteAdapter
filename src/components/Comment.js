@@ -1,13 +1,15 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {View, Text, TextInput, StyleSheet, Pressable} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {Comment} from '../models';
 import {DataStore} from 'aws-amplify';
+import NotificationContext from '../context/NotificationContext';
 
 const CommentComponent = ({comment, fetchComments}) => {
   const [editComment, setEditComment] = useState(comment.content);
   const [isEditing, setIsEditing] = useState(false);
+  const [notification, setNotification] = useContext(NotificationContext);
 
   const toggleEdit = () => {
     setIsEditing(previousState => !previousState);
@@ -20,9 +22,23 @@ const CommentComponent = ({comment, fetchComments}) => {
         Comment.copyOf(original, updated => {
           updated.content = editComment;
         }),
-      ).then(() => toggleEdit());
+      ).then(() => {
+        toggleEdit();
+        setNotification({
+          ...notification,
+          message: 'Successfully updated comment!',
+          type: 'success',
+          active: true,
+        });
+      });
     } catch (err) {
       console.error('something went wrong with handleUpdatePost', err);
+      setNotification({
+        ...notification,
+        message: 'Error updating comment: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -30,9 +46,21 @@ const CommentComponent = ({comment, fetchComments}) => {
     try {
       const thisComment = await DataStore.query(Comment, comment.id);
       DataStore.delete(thisComment);
+      setNotification({
+        ...notification,
+        message: 'Successfully deleted comment!',
+        type: 'success',
+        active: true,
+      });
       fetchComments();
     } catch (err) {
       console.error('something went wrong with handleDelete:', err);
+      setNotification({
+        ...notification,
+        message: 'Error deleting comment: ' + err.message,
+        type: 'error',
+        active: true,
+      });
     }
   };
 
@@ -60,16 +88,20 @@ const CommentComponent = ({comment, fetchComments}) => {
       ) : (
         // Default view - not editing
         <View style={styles.editCommentContainer}>
-          <Text style={styles.comment}>{comment.content}</Text>
+          <Text
+            testID={`edit-comment-${comment.commentIndex}`}
+            style={styles.comment}>
+            {comment.content}
+          </Text>
           <Pressable
             style={styles.icon}
-            testID={`icon-edit-comment-${comment.id}`}
+            testID={`icon-edit-comment-${comment.commentIndex}`}
             onPress={toggleEdit}>
             <MaterialCommunityIcons name="pencil" color={'#1b494a'} size={20} />
           </Pressable>
           <Pressable
             style={styles.icon}
-            testID={`icon-delete-comment-${comment.id}`}
+            testID={`icon-delete-comment-${comment.commentIndex}`}
             onPress={handleDeleteComment}>
             <MaterialCommunityIcons name="delete" color={'#940005'} size={20} />
           </Pressable>
