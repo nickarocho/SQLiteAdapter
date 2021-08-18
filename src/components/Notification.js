@@ -1,29 +1,63 @@
-import React, {useContext} from 'react';
+import React, {useContext, useRef} from 'react';
 import {useEffect} from 'react';
 import {Animated, Text, StyleSheet, Pressable, View} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Easing from 'react-native/Libraries/Animated/Easing';
 import NotificationContext from '../context/NotificationContext';
 
 const NotificationComponent = () => {
   const [notification, setNotification] = useContext(NotificationContext);
+  // initializes & stores the animation values
+  const translateYValue = useRef(new Animated.Value(-500)).current;
+  // length of notification showing before auto-hiding
+  const CLEAR_TIMER = 6000;
 
-  // TODO: fix the auto clear timeout issue
-  // const CLEAR_TIMER = 10000;
-  // useEffect(() => {
-  //   // Clears the notification after CLEAR_TIMER
-  //   // TODO: add smooth animation to make notification less jarring
-  //   setTimeout(
-  //     () => setNotification({...notification, active: false}),
-  //     CLEAR_TIMER,
-  //   );
-  // });
+  const animateIn = () => {
+    console.log('in');
+    Animated.timing(translateYValue, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const animateOut = () => {
+    Animated.timing(translateYValue, {
+      toValue: -500,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleDismiss = () => {
+    setNotification({
+      ...notification,
+      active: false,
+    });
+    animateOut();
+  };
+
+  useEffect(() => {
+    if (notification.active) {
+      // shows the notification when activated via setNotification({...notification, active: true});
+      animateIn();
+    }
+
+    // Auto-dismisses the notification after CLEAR_TIMER
+    const notificationTimer = setTimeout(handleDismiss, CLEAR_TIMER);
+
+    return () => {
+      // cleaning up timers
+      clearTimeout(notificationTimer);
+    };
+  });
 
   return (
     <Animated.View
       testID="notification-container"
       style={[
-        styles.container,
-        notification.active ? styles.active : styles.inActive,
+        {...styles.container, transform: [{translateY: translateYValue}]},
+        // notification.active ? styles.active : styles.inActive,
         styles.notificationText,
         notification.type === 'success'
           ? styles.successBg
@@ -64,11 +98,7 @@ const NotificationComponent = () => {
           {notification.message}
         </Text>
       </View>
-      <Pressable
-        testID="btn-notification-close"
-        onPress={() =>
-          setNotification({...notification, message: '', active: false})
-        }>
+      <Pressable testID="btn-notification-close" onPress={handleDismiss}>
         <MaterialCommunityIcons
           name="close-circle"
           color={'#BFC6CE'}

@@ -4,7 +4,7 @@ describe('SQLiteAdapter', () => {
   });
 
   beforeEach(async () => {
-    // await device.reloadReactNative();
+    await device.reloadReactNative();
   });
 
   // UTILITY FNS
@@ -114,7 +114,7 @@ describe('SQLiteAdapter', () => {
       await element(by.label('Posts')).tap();
       await element(by.id(`btn-view-post-${postIndex}`)).tap();
       await element(by.id('switch-toggle-edit-post')).tap();
-      await element(by.id(`edit-post-${field}`)).replaceText(value);
+      await element(by.id(`edit-post-${field}`)).typeText(value);
       await element(by.id('switch-toggle-edit-post')).tap();
       await element(by.text('Save')).tap();
     } catch (err) {
@@ -181,7 +181,7 @@ describe('SQLiteAdapter', () => {
   async function deletePostEditor(postEditorIndex = 0) {
     try {
       await element(by.label('Post Editors')).tap();
-      await element(by.id(`btn-delete-user-${postEditorIndex}`)).tap();
+      await element(by.id(`btn-delete-postEditor-${postEditorIndex}`)).tap();
     } catch (err) {
       console.error(err);
     }
@@ -233,6 +233,9 @@ describe('SQLiteAdapter', () => {
   });
 
   it('UPDATE: edits/updates posts, user profiles, and comments', async () => {
+    // TODO: fix "undefined is not an object" error (app)
+    // I think it's the postEditors logic in ViewPostScreen
+    // - no asssigned postEditor before toggling edit, but there IS one assigned
     await editPost(0, 'title', 'NEWLY UPDATED post');
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -270,6 +273,7 @@ describe('SQLiteAdapter', () => {
       'Successfully deleted comment!',
     );
     await dismissNotification();
+    await element(by.id('navigate-back-all-users')).tap();
 
     await deletePostEditor(0);
     await waitFor(element(by.id('notification-container')))
@@ -288,6 +292,8 @@ describe('SQLiteAdapter', () => {
       'Successfully deleted user!',
     );
     await dismissNotification();
+
+    // TODO: fix this, detox tests break here
 
     await deletePost(0);
     await waitFor(element(by.id('notification-container')))
