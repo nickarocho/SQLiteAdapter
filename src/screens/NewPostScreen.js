@@ -62,7 +62,7 @@ const NewPostScreen = ({navigation}) => {
             const user = await DataStore.query(User, item.id);
             const postEditor = await DataStore.save(
               new PostEditor({
-                post: post,
+                postID: post.id,
                 editor: user,
               }),
             );

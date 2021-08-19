@@ -2,7 +2,6 @@ import React, {useContext, useRef} from 'react';
 import {useEffect} from 'react';
 import {Animated, Text, StyleSheet, Pressable, View} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Easing from 'react-native/Libraries/Animated/Easing';
 import NotificationContext from '../context/NotificationContext';
 
 const NotificationComponent = () => {

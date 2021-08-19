@@ -1,6 +1,7 @@
 describe('SQLiteAdapter', () => {
   beforeAll(async () => {
     await device.launchApp();
+    await signIn();
   });
 
   beforeEach(async () => {
@@ -114,7 +115,7 @@ describe('SQLiteAdapter', () => {
       await element(by.label('Posts')).tap();
       await element(by.id(`btn-view-post-${postIndex}`)).tap();
       await element(by.id('switch-toggle-edit-post')).tap();
-      await element(by.id(`edit-post-${field}`)).typeText(value);
+      await element(by.id(`edit-post-${field}`)).replaceText(value);
       await element(by.id('switch-toggle-edit-post')).tap();
       await element(by.text('Save')).tap();
     } catch (err) {
@@ -142,7 +143,7 @@ describe('SQLiteAdapter', () => {
       await element(by.id('switch-toggle-edit-post')).tap();
       await element(by.id(`icon-edit-comment-${commentIndex}`)).tap();
       await element(by.id(`edit-comment-${commentIndex}`)).replaceText(value);
-      await element(by.id(`icon-edit-comment-${commentIndex}`)).tap();
+      await element(by.id(`icon-update-comment-${commentIndex}`)).tap();
     } catch (err) {
       console.error(err);
     }
@@ -199,9 +200,7 @@ describe('SQLiteAdapter', () => {
   // 4. Query records from local store; TODO: validate data; versions etc.
   // 5. Delete * parent records for logged-in user; TODO: validate cascade behavior; TODO: validate no errors
 
-  it('CREATE: signs in and creates: 1 new user, 1 new post', async () => {
-    await signIn();
-
+  it('CREATE: creates a user', async () => {
     // Create a user first to be able to select a "postEditor" when making a new post
     await createNewUser();
     await waitFor(element(by.id('notification-container')))
@@ -210,10 +209,10 @@ describe('SQLiteAdapter', () => {
     await expect(element(by.id('notification-message'))).toHaveText(
       'Successfully created new user!',
     );
+  });
 
-    await dismissNotification();
-
-    await createNewPost();
+  it('CREATE: creates a post & post editor', async () => {
+    await createNewPost('New Detox post, created: ' + new Date());
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
       .withTimeout(2000);
@@ -221,7 +220,9 @@ describe('SQLiteAdapter', () => {
       'Successfully created new post!',
     );
     await dismissNotification();
+  });
 
+  it('CREATE: creates a comment', async () => {
     await commentOnPost(0, 'Very cool!');
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -232,10 +233,7 @@ describe('SQLiteAdapter', () => {
     await dismissNotification();
   });
 
-  it('UPDATE: edits/updates posts, user profiles, and comments', async () => {
-    // TODO: fix "undefined is not an object" error (app)
-    // I think it's the postEditors logic in ViewPostScreen
-    // - no asssigned postEditor before toggling edit, but there IS one assigned
+  it('UPDATE: edits a post', async () => {
     await editPost(0, 'title', 'NEWLY UPDATED post');
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -244,7 +242,9 @@ describe('SQLiteAdapter', () => {
       'Successfully updated post!',
     );
     await dismissNotification();
+  });
 
+  it('UPDATE: edits a user profile', async () => {
     await editUserProfile(0, 'username', 'newEDITEDUser1234');
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -253,7 +253,9 @@ describe('SQLiteAdapter', () => {
       'Successfully updated user profile!',
     );
     await dismissNotification();
+  });
 
+  it('UPDATE: edits a comment', async () => {
     await editComment(0, 0, 'EDITED comment');
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -264,7 +266,7 @@ describe('SQLiteAdapter', () => {
     await dismissNotification();
   });
 
-  it('DELETE: deletes posts, users, post editors, and comments', async () => {
+  it('DELETE: deletes a comment', async () => {
     await deleteComment(0, 0);
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -273,8 +275,9 @@ describe('SQLiteAdapter', () => {
       'Successfully deleted comment!',
     );
     await dismissNotification();
-    await element(by.id('navigate-back-all-users')).tap();
+  });
 
+  it('DELETE: deletes a post editor', async () => {
     await deletePostEditor(0);
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -283,7 +286,9 @@ describe('SQLiteAdapter', () => {
       'Successfully deleted post editor!',
     );
     await dismissNotification();
+  });
 
+  it('DELETE: deletes a user', async () => {
     await deleteUser(0);
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
@@ -292,9 +297,9 @@ describe('SQLiteAdapter', () => {
       'Successfully deleted user!',
     );
     await dismissNotification();
+  });
 
-    // TODO: fix this, detox tests break here
-
+  it('DELETE: deletes a post', async () => {
     await deletePost(0);
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()

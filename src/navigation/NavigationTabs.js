@@ -11,6 +11,7 @@ import ViewProfileScreen from '../screens/ViewProfileScreen';
 import NewUserScreen from '../screens/NewUserScreen';
 import PostEditorsScreen from '../screens/PostEditorsScreen';
 import AuthScreen from '../screens/AuthScreen.js';
+import SettingsScreen from '../screens/SettingsScreen.js';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -120,6 +121,18 @@ const NavigationTabs = () => {
           ),
           tabBarTestID: 'tab-login',
           headerTitle: 'Log In / Sign Up',
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        tabBarTestID={'tab-settings'}
+        options={{
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="cog" color={color} size={26} />
+          ),
+          tabBarTestID: 'tab-settings',
+          headerTitle: 'DataStore & App Settings',
         }}
       />
     </Tab.Navigator>

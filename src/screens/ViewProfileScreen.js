@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -20,9 +20,18 @@ const ViewProfileScreen = props => {
   const {user} = props.route.params;
   const {navigation} = props;
   const [editedUser, setEditedUser] = useState({...user});
-  const [editedProfile, setEditedProfile] = useState({...user.profile});
+  const [editedProfile, setEditedProfile] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useContext(NotificationContext);
+
+  const fetchProfile = useCallback(async () => {
+    const profile = await DataStore.query(Profile, user.profileID);
+    setEditedProfile(profile);
+  }, [user.profileID]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const toggleEditProfileSwitch = () => {
     if (isEditing) {
@@ -57,6 +66,7 @@ const ViewProfileScreen = props => {
 
   const handleUpdateProfile = async () => {
     try {
+      console.log('69');
       const originalUser = await DataStore.query(User, user.id);
       await DataStore.save(
         User.copyOf(originalUser, updated => {
@@ -68,9 +78,12 @@ const ViewProfileScreen = props => {
         });
       });
 
-      const originalProfile = await DataStore.query(Profile, user.profile.id);
+      console.log({user});
+      const originalProfile = await DataStore.query(Profile, user.profileID);
+      console.log({originalProfile});
       await DataStore.save(
         Profile.copyOf(originalProfile, updated => {
+          console.log({editedProfile, updated});
           Object.assign(updated, editedProfile);
           updated.avatar = {...editedProfile.avatar};
         }),

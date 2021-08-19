@@ -69,33 +69,41 @@ const ViewPostScreen = props => {
 
     try {
       const originalPost = await DataStore.query(Post, id);
-      const updatedPostEditors = await updatePostEditors();
+      await updatePostEditors();
 
       await DataStore.save(
         Post.copyOf(originalPost, updated => {
-          Object.assign(updated, editedPost);
+          updated.title = editedPost.title;
+          updated.draft = editedPost.draft;
+          updated.views = editedPost.views;
+          updated.rating = editedPost.rating;
+          updated.metadata = editedPost.metadata;
+          updated.comments = editedPost.comments;
         }),
-      ).then(updated => {
-        setEditedPost({
-          ...updated,
-        });
+      )
+        .then(updated => {
+          setEditedPost({
+            ...updated,
+          });
 
-        setNotification({
-          ...notification,
-          message: 'Successfully updated post!',
-          type: 'success',
-          active: true,
+          setNotification({
+            ...notification,
+            message: 'Successfully updated post!',
+            type: 'success',
+            active: true,
+          });
+        })
+        .catch(err => {
+          console.error('DataStore.save(Post.copyOf(...)) error: ', err);
+          setNotification({
+            ...notification,
+            message: 'DataStore.save(Post.copyOf(...)) error: ' + err.message,
+            type: 'error',
+            active: true,
+          });
         });
-      });
     } catch (err) {
       console.error('something went wrong with handleUpdatePost', err);
-
-      setNotification({
-        ...notification,
-        message: 'Error updating post: ' + err.message,
-        type: 'error',
-        active: true,
-      });
     }
   };
 
@@ -159,14 +167,23 @@ const ViewPostScreen = props => {
   };
 
   const createPostEditor = async newEditor => {
-    const newEditorModel = await DataStore.save(
-      new PostEditor({
-        post: post,
-        editor: newEditor,
-      }),
-    );
-    console.log('Successfully created new postEditor: ', newEditorModel);
-    return newEditorModel;
+    try {
+      const newEditorModel = await DataStore.save(
+        new PostEditor({
+          postID: post.id,
+          editor: newEditor,
+        }),
+      );
+      return newEditorModel;
+    } catch (err) {
+      console.error('something went wrong in createPostEditor: ', err);
+      setNotification({
+        ...notification,
+        message: 'Error updating post: ' + err.message,
+        type: 'error',
+        active: true,
+      });
+    }
   };
 
   const updatePostEditors = () => {
@@ -181,7 +198,13 @@ const ViewPostScreen = props => {
         try {
           await createPostEditor(editor);
         } catch (err) {
-          console.error('something went wrong creating a new posteEditor', err);
+          console.error('something went wrong in updatePostEditors', err);
+          setNotification({
+            ...notification,
+            message: 'Error with updatePostEditors: ' + err.message,
+            type: 'error',
+            active: true,
+          });
         }
       }
     });
@@ -197,9 +220,14 @@ const ViewPostScreen = props => {
             return em.editor.id === editor.id;
           });
           DataStore.delete(thisPostEditor);
-          console.log('Successfully deleted postEditor: ', thisPostEditor);
         } catch (err) {
           console.error('something went wrong deleting a postEditor', err);
+          setNotification({
+            ...notification,
+            message: 'Error with updatePostEditors: ' + err.message,
+            type: 'error',
+            active: true,
+          });
         }
       }
     });
@@ -390,11 +418,13 @@ const ViewPostScreen = props => {
           <SafeAreaView>
             <ScrollView>
               {editors.map((item, index) => {
-                <View key={index} style={styles.checkboxContainer}>
-                  {item.assigned && (
-                    <Text style={styles.bigText}>- {item.username}</Text>
-                  )}
-                </View>;
+                return (
+                  <View key={index} style={styles.checkboxContainer}>
+                    {item.assigned && (
+                      <Text style={styles.bigText}>- {item.username}</Text>
+                    )}
+                  </View>
+                );
               })}
             </ScrollView>
           </SafeAreaView>
@@ -404,7 +434,7 @@ const ViewPostScreen = props => {
       <View style={styles.commentContainer}>
         <Text style={styles.commentLabel}>
           Comments (
-          <Text testID="comment-count">{editedPost.comments.length}</Text>)
+          <Text testID="comment-count">{editedPost.comments?.length}</Text>)
         </Text>
         <SafeAreaView>
           <ScrollView>

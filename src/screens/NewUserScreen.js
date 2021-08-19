@@ -42,7 +42,7 @@ const NewUserScreen = ({navigation}) => {
       }
       const savedProfile = await DataStore.save(new Profile({...newProfile}));
       const savedUser = await DataStore.save(
-        new User({...newUser, profile: savedProfile}),
+        new User({...newUser, profileID: savedProfile.id}),
       );
       setNotification({
         ...notification,

@@ -69,6 +69,7 @@ const CommentComponent = ({comment, fetchComments}) => {
       {isEditing ? (
         <View style={styles.editCommentContainer}>
           <TextInput
+            testID={`edit-comment-${comment.commentIndex}`}
             value={editComment}
             onChangeText={setEditComment}
             style={styles.editCommentInput}
@@ -76,7 +77,7 @@ const CommentComponent = ({comment, fetchComments}) => {
           />
           <Pressable
             style={styles.icon}
-            testID={`icon-update-comment-${comment.id}`}
+            testID={`icon-update-comment-${comment.commentIndex}`}
             onPress={handleUpdateComment}>
             <MaterialCommunityIcons
               name="cloud-check"
@@ -88,11 +89,7 @@ const CommentComponent = ({comment, fetchComments}) => {
       ) : (
         // Default view - not editing
         <View style={styles.editCommentContainer}>
-          <Text
-            testID={`edit-comment-${comment.commentIndex}`}
-            style={styles.comment}>
-            {comment.content}
-          </Text>
+          <Text style={styles.comment}>{comment.content}</Text>
           <Pressable
             style={styles.icon}
             testID={`icon-edit-comment-${comment.commentIndex}`}
