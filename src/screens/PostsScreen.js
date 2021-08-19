@@ -43,17 +43,34 @@ const PostsScreen = ({navigation}) => {
   const fetchPosts = async () => {
     try {
       const allPosts = await DataStore.query(Post);
+      console.log({allPosts});
 
       // merge Post model with Comment model
       Promise.all(
         allPosts.map(async post => {
           let id = post.id;
-          const comments = (await DataStore.query(Comment)).filter(
-            c => c.post.id === id,
-          );
-          const editors = (await DataStore.query(PostEditor)).filter(
-            c => c.post.id === id,
-          );
+          let comments;
+          let editors;
+          try {
+            comments = (await DataStore.query(Comment)).filter(c => {
+              return c.post.id === id;
+            });
+          } catch (err) {
+            console.error(
+              'something went wrong with fetchPosts - querying comments:',
+              err,
+            );
+          }
+          try {
+            editors = (await DataStore.query(PostEditor)).filter(e => {
+              return e.post.id === id;
+            });
+          } catch (err) {
+            console.error(
+              'something went wrong with fetchPosts - querying postEditors:',
+              err,
+            );
+          }
           return {...post, comments, editors};
         }),
       ).then(syncedPosts => {

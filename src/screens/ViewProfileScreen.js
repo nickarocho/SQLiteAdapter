@@ -66,7 +66,6 @@ const ViewProfileScreen = props => {
 
   const handleUpdateProfile = async () => {
     try {
-      console.log('69');
       const originalUser = await DataStore.query(User, user.id);
       await DataStore.save(
         User.copyOf(originalUser, updated => {
@@ -77,17 +76,30 @@ const ViewProfileScreen = props => {
           ...updated,
         });
       });
+    } catch (err) {
+      console.error(
+        'something went wrong with handleUpdateProfile - updating username',
+        err,
+      );
+      setNotification({
+        ...notification,
+        message: 'Error updating username: ' + err.message,
+        type: 'error',
+        active: true,
+      });
+    }
 
-      console.log({user});
+    try {
       const originalProfile = await DataStore.query(Profile, user.profileID);
-      console.log({originalProfile});
       await DataStore.save(
         Profile.copyOf(originalProfile, updated => {
-          console.log({editedProfile, updated});
-          Object.assign(updated, editedProfile);
-          updated.avatar = {...editedProfile.avatar};
+          updated.firstName = editedProfile.firstName;
+          updated.lastName = editedProfile.lastName;
+          updated.avatar.url = editedProfile.avatar.url;
+          updated.avatar.label = editedProfile.avatar.label;
         }),
       ).then(updated => {
+        console.log({updated});
         setEditedProfile({
           ...updated,
           avatar: {...updated.avatar},
@@ -100,7 +112,10 @@ const ViewProfileScreen = props => {
         });
       });
     } catch (err) {
-      console.error('something went wrong with handleUpdateProfile', err);
+      console.error(
+        'something went wrong with handleUpdateProfile - updating profile',
+        err,
+      );
       setNotification({
         ...notification,
         message: 'Error updating profile: ' + err.message,

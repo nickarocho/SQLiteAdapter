@@ -49,7 +49,7 @@ const PostComponent = ({post, navigation, fetchPosts}) => {
         <Text style={styles.smallText}>
           <Text style={styles.listLabelBold}>Comments </Text>(
           <Text testID={`comment-count-${post.id}`}>
-            {post.comments.length}
+            {post.comments ? post.comments.length : '0'}
           </Text>
           )
         </Text>

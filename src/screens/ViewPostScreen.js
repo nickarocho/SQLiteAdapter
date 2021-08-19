@@ -139,9 +139,10 @@ const ViewPostScreen = props => {
 
   const fetchComments = useCallback(async () => {
     try {
-      const allComments = (await DataStore.query(Comment)).filter(
-        c => c.post.id === post.id,
-      );
+      const allComments = (await DataStore.query(Comment)).filter(c => {
+        console.log({c});
+        return c.post.id === post.id;
+      });
       setEditedPost({...post, comments: allComments});
 
       // clear the input field
@@ -436,21 +437,23 @@ const ViewPostScreen = props => {
           Comments (
           <Text testID="comment-count">{editedPost.comments?.length}</Text>)
         </Text>
-        <SafeAreaView>
-          <ScrollView>
-            {editedPost.comments.map((item, index) => {
-              return (
-                <CommentComponent
-                  key={index}
-                  comment={{...item, commentIndex: index}}
-                  navigation={navigation}
-                  style={styles.comment}
-                  fetchComments={fetchComments}
-                />
-              );
-            })}
-          </ScrollView>
-        </SafeAreaView>
+        {editedPost.comments && (
+          <SafeAreaView>
+            <ScrollView>
+              {editedPost.comments.map((item, index) => {
+                return (
+                  <CommentComponent
+                    key={index}
+                    comment={{...item, commentIndex: index}}
+                    navigation={navigation}
+                    style={styles.comment}
+                    fetchComments={fetchComments}
+                  />
+                );
+              })}
+            </ScrollView>
+          </SafeAreaView>
+        )}
       </View>
 
       {/* new comment input */}

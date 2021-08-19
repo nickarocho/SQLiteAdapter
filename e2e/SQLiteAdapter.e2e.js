@@ -29,7 +29,7 @@ describe('SQLiteAdapter', () => {
     try {
       await element(by.label('Log In')).tap();
       await element(by.id('aws-amplify__auth--username-input')).typeText(
-        'joeshmoe',
+        'janeshmoe',
       );
       await element(by.id('aws-amplify__auth--password-input')).typeText(
         'password',
@@ -38,7 +38,7 @@ describe('SQLiteAdapter', () => {
       await waitFor(
         element(by.id('aws-amplify__auth--greeting-signed-in-text')),
       )
-        .toHaveText('Hello joeshmoe')
+        .toHaveText('Hello janeshmoe')
         .withTimeout(60000);
     } catch (err) {
       console.error('signIn error: ', err);
