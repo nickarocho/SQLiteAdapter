@@ -67,7 +67,7 @@ const ViewProfileScreen = props => {
 
   useEffect(() => {
     fetchProfile();
-  }, [fetchProfile]);
+  }, []);
 
   const toggleEditSwitch = (toggleType = 'profile') => {
     if (isEditingProfile || isEditingUsername) {
