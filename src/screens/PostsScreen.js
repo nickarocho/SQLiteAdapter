@@ -43,7 +43,6 @@ const PostsScreen = ({navigation}) => {
   const fetchPosts = async () => {
     try {
       const allPosts = await DataStore.query(Post);
-      console.log({allPosts});
 
       // merge Post model with Comment model
       Promise.all(

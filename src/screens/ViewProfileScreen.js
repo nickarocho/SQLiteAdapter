@@ -20,75 +20,103 @@ const ViewProfileScreen = props => {
   const {user} = props.route.params;
   const {navigation} = props;
   const [editedUser, setEditedUser] = useState({...user});
-  const [editedProfile, setEditedProfile] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState({
+    id: '',
+    firstName: '',
+    lastName: '',
+    avatar: {
+      url: '',
+      label: '',
+    },
+  });
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [notification, setNotification] = useContext(NotificationContext);
 
   const fetchProfile = useCallback(async () => {
-    const profile = await DataStore.query(Profile, user.profileID);
-    setEditedProfile(profile);
-  }, [user.profileID]);
+    try {
+      const profile = await DataStore.query(Profile, user.profileID);
+      if (!profile) {
+        setNotification({
+          ...notification,
+          message: 'No profile found with this user.',
+          type: 'error',
+          active: true,
+        });
+        return;
+      }
+      setEditedProfile({
+        id: profile.id,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        avatar: {
+          url: profile.avatar ? profile.avatar.url : '',
+          label: profile.avatar ? profile.avatar.label : '',
+        },
+      });
+    } catch (err) {
+      console.error('There was a problem with fetchProfile: ' + err);
+      setNotification({
+        ...notification,
+        message: 'fetchProfile error: ' + err,
+        type: 'error',
+        active: true,
+      });
+    }
+  }, [user.profileID, notification, setNotification]);
 
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
 
-  const toggleEditProfileSwitch = () => {
-    if (isEditing) {
+  const toggleEditSwitch = (toggleType = 'profile') => {
+    if (isEditingProfile || isEditingUsername) {
       Alert.alert(
         'Save your changes?',
-        `Do you want to save all the changes you've made to this profile?`,
+        `Do you want to save all the changes you've made to this ${toggleType}?`,
         [
           {
             text: 'Save',
             onPress: () => {
-              handleUpdateProfile(editedProfile.id);
-              setIsEditing(previousState => !previousState);
+              if (toggleType === 'profile') {
+                handleUpdateProfile(editedProfile.id);
+                setIsEditingProfile(previousState => !previousState);
+              } else {
+                handleUpdateUsername(editedProfile.id);
+                setIsEditingUsername(previousState => !previousState);
+              }
             },
             style: 'destructive',
           },
           {
             text: 'Cancel',
             onPress: () => {
-              setIsEditing(previousState => !previousState);
-              setEditedProfile({
-                ...user.profile,
-              });
+              if (toggleType === 'profile') {
+                setIsEditingProfile(previousState => !previousState);
+                setEditedProfile({
+                  ...editedProfile,
+                });
+              } else {
+                setIsEditingUsername(previousState => !previousState);
+                setEditedUser({
+                  ...user,
+                });
+              }
             },
             style: 'cancel',
           },
         ],
       );
     } else {
-      setIsEditing(previousState => !previousState);
+      if (toggleType === 'profile') {
+        setIsEditingProfile(previousState => !previousState);
+      } else {
+        setIsEditingUsername(previousState => !previousState);
+      }
     }
   };
 
   const handleUpdateProfile = async () => {
-    try {
-      const originalUser = await DataStore.query(User, user.id);
-      await DataStore.save(
-        User.copyOf(originalUser, updated => {
-          updated.username = editedUser.username;
-        }),
-      ).then(updated => {
-        setEditedUser({
-          ...updated,
-        });
-      });
-    } catch (err) {
-      console.error(
-        'something went wrong with handleUpdateProfile - updating username',
-        err,
-      );
-      setNotification({
-        ...notification,
-        message: 'Error updating username: ' + err.message,
-        type: 'error',
-        active: true,
-      });
-    }
-
     try {
       const originalProfile = await DataStore.query(Profile, user.profileID);
       await DataStore.save(
@@ -99,10 +127,13 @@ const ViewProfileScreen = props => {
           updated.avatar.label = editedProfile.avatar.label;
         }),
       ).then(updated => {
-        console.log({updated});
         setEditedProfile({
-          ...updated,
-          avatar: {...updated.avatar},
+          firstName: updated.firstName,
+          lastName: updated.lastName,
+          avatar: {
+            url: updated.avatar.url,
+            label: updated.avatar.label,
+          },
         });
         setNotification({
           ...notification,
@@ -125,6 +156,38 @@ const ViewProfileScreen = props => {
     }
   };
 
+  const handleUpdateUsername = async () => {
+    try {
+      const originalUser = await DataStore.query(User, user.id);
+      await DataStore.save(
+        User.copyOf(originalUser, updated => {
+          updated.username = editedUser.username;
+        }),
+      ).then(updated => {
+        setNotification({
+          ...notification,
+          message: 'Successfully updated username!',
+          type: 'success',
+          active: true,
+        });
+        setEditedUser({
+          username: updated.username,
+        });
+      });
+    } catch (err) {
+      console.error(
+        'something went wrong with handleUpdateProfile - updating username',
+        err,
+      );
+      setNotification({
+        ...notification,
+        message: 'Error updating username: ' + err.message,
+        type: 'error',
+        active: true,
+      });
+    }
+  };
+
   const handleEdit = val => {
     setEditedProfile(val);
   };
@@ -140,103 +203,129 @@ const ViewProfileScreen = props => {
       </Pressable>
 
       <View style={styles.editContainer}>
-        <Text style={styles.editProfileLabel}>Edit Profile</Text>
+        <Text style={styles.editProfileLabel}>Edit Username</Text>
         <Switch
-          testID="switch-toggle-edit-user-profile"
+          testID="switch-toggle-edit-username"
           trackColor={{false: '#767577', true: '#81b0ff'}}
-          thumbColor={isEditing ? '#f5dd4b' : '#f4f3f4'}
+          thumbColor={isEditingUsername ? '#f5dd4b' : '#f4f3f4'}
           ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleEditProfileSwitch}
-          value={isEditing}
+          onValueChange={() => toggleEditSwitch('username')}
+          value={isEditingUsername}
         />
       </View>
 
-      {isEditing ? (
-        <View style={styles.profileContainer}>
-          <Text style={styles.listLabel}>Username</Text>
-          <TextInput
-            style={styles.editInput}
-            onChangeText={val => setEditedUser({...editedUser, username: val})}
-            value={editedUser.username}
-            showSoftInputOnFocus={false}
-            testID="edit-profile-username"
-          />
+      <View style={styles.profileContainer}>
+        {isEditingUsername ? (
+          <View>
+            <Text style={styles.listLabel}>Username</Text>
+            <TextInput
+              style={styles.editInput}
+              onChangeText={val =>
+                setEditedUser({...editedUser, username: val})
+              }
+              value={editedUser.username}
+              showSoftInputOnFocus={false}
+              testID="edit-profile-username"
+            />
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.listLabel}>Username</Text>
+            <Text style={styles.bigText} testID="saved-profile-username">
+              {editedUser.username}
+            </Text>
+          </View>
+        )}
 
-          <Text style={styles.listLabel}>First name</Text>
-          <TextInput
-            style={styles.editInput}
-            onChangeText={val => handleEdit({...editedProfile, firstName: val})}
-            value={editedProfile.firstName}
-            showSoftInputOnFocus={false}
-            testID="edit-profile-firstName"
-          />
-
-          <Text style={styles.listLabel}>Last name</Text>
-          <TextInput
-            style={styles.editInput}
-            onChangeText={val => handleEdit({...editedProfile, lastName: val})}
-            value={editedProfile.lastName}
-            showSoftInputOnFocus={false}
-            testID="edit-profile-lastName"
-          />
-
-          <Text style={styles.listLabel}>Avatar URL</Text>
-          <TextInput
-            style={styles.editInput}
-            onChangeText={val =>
-              handleEdit({
-                ...editedProfile,
-                avatar: {...editedProfile.avatar, url: val},
-              })
-            }
-            value={editedProfile.avatar.url}
-            showSoftInputOnFocus={false}
-            testID="edit-profile-avatarURL"
-          />
-
-          <Text style={styles.listLabel}>Avatar label</Text>
-          <TextInput
-            style={styles.editInput}
-            onChangeText={val =>
-              handleEdit({
-                ...editedProfile,
-                avatar: {...editedProfile.avatar, label: val},
-              })
-            }
-            value={editedProfile.avatar.label}
-            showSoftInputOnFocus={false}
-            testID="edit-profile-avatarLabel"
+        <View style={styles.editContainer}>
+          <Text style={styles.editProfileLabel}>Edit Profile</Text>
+          <Switch
+            testID="switch-toggle-edit-profile"
+            trackColor={{false: '#767577', true: '#81b0ff'}}
+            thumbColor={isEditingProfile ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={() => toggleEditSwitch('profile')}
+            value={isEditingProfile}
           />
         </View>
-      ) : (
-        // Default view - not editing
-        <View style={styles.profileContainer}>
-          <Text style={styles.listLabel}>Username</Text>
-          <Text style={styles.bigText} testID="saved-profile-username">
-            {editedUser.username}
-          </Text>
 
-          <Text style={styles.listLabel}>First name</Text>
-          <Text style={styles.bigText} testID="saved-profile-firstName">
-            {editedProfile.firstName}
-          </Text>
+        {isEditingProfile ? (
+          <View>
+            <Text style={styles.listLabel}>First name</Text>
+            <TextInput
+              style={styles.editInput}
+              onChangeText={val =>
+                handleEdit({...editedProfile, firstName: val})
+              }
+              value={editedProfile.firstName}
+              showSoftInputOnFocus={false}
+              testID="edit-profile-firstName"
+            />
 
-          <Text style={styles.listLabel}>Last name</Text>
-          <Text style={styles.bigText} testID="saved-profile-lastName">
-            {editedProfile.lastName}
-          </Text>
+            <Text style={styles.listLabel}>Last name</Text>
+            <TextInput
+              style={styles.editInput}
+              onChangeText={val =>
+                handleEdit({...editedProfile, lastName: val})
+              }
+              value={editedProfile.lastName}
+              showSoftInputOnFocus={false}
+              testID="edit-profile-lastName"
+            />
 
-          <Text style={styles.listLabel}>Avatar URL</Text>
-          <Text style={styles.bigText} testID="saved-profile-avatarURL">
-            {editedProfile.avatar?.url}
-          </Text>
+            <Text style={styles.listLabel}>Avatar URL</Text>
+            <TextInput
+              style={styles.editInput}
+              onChangeText={val =>
+                handleEdit({
+                  ...editedProfile,
+                  avatar: {...editedProfile.avatar, url: val},
+                })
+              }
+              value={editedProfile.avatar.url}
+              showSoftInputOnFocus={false}
+              testID="edit-profile-avatarURL"
+            />
 
-          <Text style={styles.listLabel}>Avatar label</Text>
-          <Text style={styles.bigText} testID="saved-profile-avatarLabel">
-            {editedProfile.avatar?.label}
-          </Text>
-        </View>
-      )}
+            <Text style={styles.listLabel}>Avatar label</Text>
+            <TextInput
+              style={styles.editInput}
+              onChangeText={val =>
+                handleEdit({
+                  ...editedProfile,
+                  avatar: {...editedProfile.avatar, label: val},
+                })
+              }
+              value={editedProfile.avatar.label}
+              showSoftInputOnFocus={false}
+              testID="edit-profile-avatarLabel"
+            />
+          </View>
+        ) : (
+          // Default view - not editing
+          <View>
+            <Text style={styles.listLabel}>First name</Text>
+            <Text style={styles.bigText} testID="saved-profile-firstName">
+              {editedProfile.firstName}
+            </Text>
+
+            <Text style={styles.listLabel}>Last name</Text>
+            <Text style={styles.bigText} testID="saved-profile-lastName">
+              {editedProfile.lastName}
+            </Text>
+
+            <Text style={styles.listLabel}>Avatar URL</Text>
+            <Text style={styles.bigText} testID="saved-profile-avatarURL">
+              {editedProfile.avatar?.url}
+            </Text>
+
+            <Text style={styles.listLabel}>Avatar label</Text>
+            <Text style={styles.bigText} testID="saved-profile-avatarLabel">
+              {editedProfile.avatar?.label}
+            </Text>
+          </View>
+        )}
+      </View>
       <View style={styles.postsContainer}>
         <Text style={styles.commentLabel}>
           Posts ({editedUser.posts ? editedUser.posts.length : '0'})

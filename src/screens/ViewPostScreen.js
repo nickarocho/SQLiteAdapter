@@ -126,6 +126,8 @@ const ViewPostScreen = props => {
         type: 'success',
         active: true,
       });
+
+      fetchComments();
     } catch (err) {
       console.error('something went wrong with handleSubmitComment:', err);
       setNotification({
@@ -139,10 +141,9 @@ const ViewPostScreen = props => {
 
   const fetchComments = useCallback(async () => {
     try {
-      const allComments = (await DataStore.query(Comment)).filter(c => {
-        console.log({c});
-        return c.post.id === post.id;
-      });
+      const allComments = (await DataStore.query(Comment)).filter(
+        c => c.post.id === post.id,
+      );
       setEditedPost({...post, comments: allComments});
 
       // clear the input field

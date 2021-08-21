@@ -25,7 +25,6 @@ describe('SQLiteAdapter', () => {
   }
 
   async function signIn() {
-    // TODO: check if already signed in for subsequent tests
     try {
       await element(by.label('Log In')).tap();
       await element(by.id('aws-amplify__auth--username-input')).typeText(
@@ -123,13 +122,26 @@ describe('SQLiteAdapter', () => {
     }
   }
 
+  async function editUsername(userIndex = 0, value) {
+    try {
+      await element(by.label('Users')).tap();
+      await element(by.id(`btn-view-user-${userIndex}`)).tap();
+      await element(by.id('switch-toggle-edit-username')).tap();
+      await element(by.id('edit-profile-username')).typeText(value);
+      await element(by.id('switch-toggle-edit-username')).tap();
+      await element(by.text('Save')).tap();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async function editUserProfile(userIndex = 0, field, value) {
     try {
       await element(by.label('Users')).tap();
       await element(by.id(`btn-view-user-${userIndex}`)).tap();
-      await element(by.id('switch-toggle-edit-user-profile')).tap();
-      await element(by.id(`edit-profile-${field}`)).replaceText(value);
-      await element(by.id('switch-toggle-edit-user-profile')).tap();
+      await element(by.id('switch-toggle-edit-profile')).tap();
+      await element(by.id(`edit-profile-${field}`)).typeText(value);
+      await element(by.id('switch-toggle-edit-profile')).tap();
       await element(by.text('Save')).tap();
     } catch (err) {
       console.error(err);
@@ -244,8 +256,19 @@ describe('SQLiteAdapter', () => {
     await dismissNotification();
   });
 
-  it('UPDATE: edits a user profile', async () => {
-    await editUserProfile(0, 'username', 'newEDITEDUser1234');
+  it('UPDATE: edits a user - username', async () => {
+    await editUsername(0, '-EDITED');
+    await waitFor(element(by.id('notification-container')))
+      .toBeVisible()
+      .withTimeout(2000);
+    await expect(element(by.id('notification-message'))).toHaveText(
+      'Successfully updated username!',
+    );
+    await dismissNotification();
+  });
+
+  it('UPDATE: edits a profile', async () => {
+    await editUserProfile(0, 'firstName', '-EDITED');
     await waitFor(element(by.id('notification-container')))
       .toBeVisible()
       .withTimeout(2000);
