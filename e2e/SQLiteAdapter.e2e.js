@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 describe('SQLiteAdapter', () => {
   beforeAll(async () => {
     await device.launchApp();
